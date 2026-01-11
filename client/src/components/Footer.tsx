@@ -12,6 +12,7 @@ const quickLinks = [
 const institutionalLinks = [
   { href: "/acerca", label: "Acerca del Proyecto" },
   { href: "/contacto", label: "Contacto" },
+  { href: "/verificar-certificado", label: "Verificar Certificado" },
   { href: "#", label: "Aviso de Privacidad" },
   { href: "#", label: "Términos de Uso" },
 ];

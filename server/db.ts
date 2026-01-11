@@ -8,7 +8,8 @@ import {
   resources, InsertResource,
   contactRequests, InsertContactRequest,
   courses, InsertCourse,
-  reviews, InsertReview, Review
+  reviews, InsertReview, Review,
+  certificates, InsertCertificate, Certificate
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -656,4 +657,80 @@ export async function getUserEnrollmentStats(userId: number) {
   });
 
   return stats;
+}
+
+// ============ CERTIFICATE FUNCTIONS ============
+
+export async function createCertificate(data: InsertCertificate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(certificates).values(data);
+  return { insertId: Number(result[0].insertId) };
+}
+
+export async function getCertificateByEnrollment(enrollmentId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(certificates)
+    .where(eq(certificates.enrollmentId, enrollmentId))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+export async function getCertificateByCode(code: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(certificates)
+    .where(eq(certificates.certificateCode, code))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+export async function getUserCertificates(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select({
+      certificate: certificates,
+      course: courses,
+    })
+    .from(certificates)
+    .leftJoin(courses, eq(certificates.courseId, courses.id))
+    .where(and(
+      eq(certificates.userId, userId),
+      eq(certificates.isValid, true)
+    ))
+    .orderBy(desc(certificates.issuedAt));
+
+  return result;
+}
+
+export async function updateCertificatePdfUrl(certificateId: number, pdfUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(certificates)
+    .set({ pdfUrl })
+    .where(eq(certificates.id, certificateId));
+}
+
+export async function invalidateCertificate(certificateId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(certificates)
+    .set({ isValid: false })
+    .where(eq(certificates.id, certificateId));
 }

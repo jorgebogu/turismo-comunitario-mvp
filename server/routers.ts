@@ -352,6 +352,123 @@ export const appRouter = router({
       }),
   }),
 
+  // Certificados de Cursos
+  certificates: router({
+    // Generar certificado para un curso completado
+    generate: protectedProcedure
+      .input(z.object({ enrollmentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        // Verificar que la inscripción pertenece al usuario y está completada
+        const enrollments = await db.getUserEnrollments(ctx.user.id);
+        const enrollment = enrollments.find(e => e.enrollment.id === input.enrollmentId);
+        
+        if (!enrollment) {
+          throw new Error("Inscripción no encontrada");
+        }
+        
+        if ((enrollment.enrollment.progress ?? 0) < 100) {
+          throw new Error("Debes completar el curso al 100% para obtener el certificado");
+        }
+        
+        // Verificar si ya existe un certificado
+        const existingCert = await db.getCertificateByEnrollment(input.enrollmentId);
+        if (existingCert) {
+          return { 
+            success: true, 
+            message: "Certificado ya generado", 
+            certificate: existingCert,
+            alreadyExists: true 
+          };
+        }
+        
+        // Generar código único
+        const { generateCertificateCode } = await import("./certificateGenerator");
+        const certificateCode = generateCertificateCode();
+        
+        // Crear certificado
+        const result = await db.createCertificate({
+          enrollmentId: input.enrollmentId,
+          userId: ctx.user.id,
+          courseId: enrollment.course!.id,
+          certificateCode,
+          userName: ctx.user.name || "Participante",
+          courseTitle: enrollment.course!.title,
+          courseLevel: enrollment.course!.level || "basico",
+          issuedAt: new Date(),
+        });
+        
+        const certificate = await db.getCertificateByEnrollment(input.enrollmentId);
+        
+        return { 
+          success: true, 
+          message: "Certificado generado exitosamente", 
+          certificate,
+          alreadyExists: false 
+        };
+      }),
+
+    // Obtener certificados del usuario
+    myCertificates: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserCertificates(ctx.user.id);
+    }),
+
+    // Obtener certificado por inscripción
+    getByEnrollment: protectedProcedure
+      .input(z.object({ enrollmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCertificateByEnrollment(input.enrollmentId);
+      }),
+
+    // Verificar certificado por código (público)
+    verify: publicProcedure
+      .input(z.object({ code: z.string() }))
+      .query(async ({ input }) => {
+        const certificate = await db.getCertificateByCode(input.code);
+        if (!certificate) {
+          return { valid: false, message: "Certificado no encontrado" };
+        }
+        if (!certificate.isValid) {
+          return { valid: false, message: "Certificado inválido o revocado" };
+        }
+        return { 
+          valid: true, 
+          message: "Certificado válido",
+          certificate: {
+            userName: certificate.userName,
+            courseTitle: certificate.courseTitle,
+            courseLevel: certificate.courseLevel,
+            issuedAt: certificate.issuedAt,
+            certificateCode: certificate.certificateCode,
+          }
+        };
+      }),
+
+    // Generar HTML del certificado para descarga
+    getHtml: protectedProcedure
+      .input(z.object({ enrollmentId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const certificate = await db.getCertificateByEnrollment(input.enrollmentId);
+        if (!certificate || certificate.userId !== ctx.user.id) {
+          throw new Error("Certificado no encontrado");
+        }
+        
+        const enrollments = await db.getUserEnrollments(ctx.user.id);
+        const enrollment = enrollments.find(e => e.enrollment.id === input.enrollmentId);
+        
+        const { generateCertificateHTML } = await import("./certificateGenerator");
+        const html = generateCertificateHTML({
+          userName: certificate.userName,
+          courseTitle: certificate.courseTitle,
+          courseLevel: certificate.courseLevel || "basico",
+          certificateCode: certificate.certificateCode,
+          issuedAt: certificate.issuedAt,
+          duration: enrollment?.course?.duration ?? undefined,
+        });
+        
+        return { html, certificate };
+      }),
+  }),
+
   // Estadísticas generales
   stats: router({
     get: publicProcedure.query(async () => {

@@ -15,6 +15,7 @@ import About from "./pages/About";
 import ExperienceDetail from "./pages/ExperienceDetail";
 import CourseDetail from "./pages/CourseDetail";
 import MyCourses from "./pages/MyCourses";
+import VerifyCertificate from "./pages/VerifyCertificate";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/experiencia/:id" component={ExperienceDetail} />
       <Route path="/curso/:id" component={CourseDetail} />
       <Route path="/mis-cursos" component={MyCourses} />
+      <Route path="/verificar-certificado" component={VerifyCertificate} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

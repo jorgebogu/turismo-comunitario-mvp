@@ -43,6 +43,7 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import CertificateViewer from "@/components/CertificateViewer";
 
 const courseLevels = {
   basico: { label: "Básico", color: "bg-green-500/10 text-green-600" },
@@ -482,10 +483,11 @@ function CourseCard({
           <div className="flex flex-wrap gap-2">
             {enrollment.status === "completed" ? (
               <>
-                <Button variant="outline" size="sm">
-                  <Award className="h-4 w-4 mr-2" />
-                  Ver Certificado
-                </Button>
+                <CertificateViewer
+                  enrollmentId={enrollment.id}
+                  courseTitle={course.title}
+                  isCompleted={true}
+                />
                 <Button variant="ghost" size="sm" asChild>
                   <Link href={`/curso/${course.id}`}>
                     <ExternalLink className="h-4 w-4 mr-2" />

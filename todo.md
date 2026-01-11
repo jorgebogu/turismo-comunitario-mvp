@@ -116,3 +116,15 @@
 - [x] Agregar pruebas unitarias para el sistema de inscripciones (12 tests)
 - [x] Enlace a "Mis Cursos" en el menú de usuario
 - [x] Estadísticas de inscripciones del usuario
+
+## Sistema de Certificados Descargables
+
+- [x] Crear tabla de certificados en la base de datos
+- [x] Implementar generación de PDF con diseño profesional
+- [x] Crear API para generar y descargar certificados
+- [x] Agregar código de verificación único para cada certificado (formato TCS-XXXXX-XXXXXXXX)
+- [x] Mostrar botón de descarga en cursos completados
+- [x] Crear página de verificación de certificados (/verificar-certificado)
+- [x] Agregar sección de certificados en "Mis Cursos"
+- [x] Pruebas unitarias para el sistema de certificados (21 tests)
+- [x] Enlace a verificación de certificados en el Footer

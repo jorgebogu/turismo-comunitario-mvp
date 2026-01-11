@@ -202,3 +202,24 @@ export const courseEnrollments = mysqlTable("course_enrollments", {
 
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type InsertCourseEnrollment = typeof courseEnrollments.$inferInsert;
+
+/**
+ * Certificados de Cursos Completados
+ */
+export const certificates = mysqlTable("certificates", {
+  id: int("id").autoincrement().primaryKey(),
+  enrollmentId: int("enrollmentId").notNull(),
+  userId: int("userId").notNull(),
+  courseId: int("courseId").notNull(),
+  certificateCode: varchar("certificateCode", { length: 50 }).notNull().unique(),
+  userName: varchar("userName", { length: 255 }).notNull(),
+  courseTitle: varchar("courseTitle", { length: 255 }).notNull(),
+  courseLevel: varchar("courseLevel", { length: 50 }),
+  issuedAt: timestamp("issuedAt").defaultNow().notNull(),
+  pdfUrl: text("pdfUrl"),
+  isValid: boolean("isValid").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Certificate = typeof certificates.$inferSelect;
+export type InsertCertificate = typeof certificates.$inferInsert;
