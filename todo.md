@@ -71,3 +71,11 @@
 - [x] Mostrar distancia en las tarjetas de experiencias
 - [x] Círculo visual en el mapa mostrando el radio de búsqueda
 - [x] Marcador de ubicación del usuario con animación
+
+- [x] Implementar rutas de navegación con Google Directions
+- [x] Mostrar ruta visual en el mapa
+- [x] Mostrar distancia y tiempo estimado de viaje
+- [x] Botón "Cómo llegar" en las tarjetas de experiencias
+- [x] Opciones de modo de transporte (auto, transporte público, caminando)
+- [x] Diálogo con indicaciones paso a paso
+- [x] Botón para abrir ruta en Google Maps

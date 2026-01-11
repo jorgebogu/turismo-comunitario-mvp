@@ -13,9 +13,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { MapView } from "@/components/Map";
 import { toast } from "sonner";
@@ -35,6 +41,12 @@ import {
   Navigation,
   Locate,
   Loader2,
+  Car,
+  Bus,
+  Footprints,
+  Clock,
+  Route,
+  ExternalLink,
 } from "lucide-react";
 
 const categories = [
@@ -82,6 +94,12 @@ const distanceOptions = [
   { value: -1, label: "Sin límite" },
 ];
 
+const travelModes = [
+  { value: "DRIVING", label: "Auto", icon: Car },
+  { value: "TRANSIT", label: "Transporte público", icon: Bus },
+  { value: "WALKING", label: "Caminando", icon: Footprints },
+];
+
 // Función para calcular distancia entre dos puntos usando la fórmula de Haversine
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Radio de la Tierra en km
@@ -103,9 +121,47 @@ function formatDistance(km: number): string {
   return `${Math.round(km)} km`;
 }
 
+// Formatear duración
+function formatDuration(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours} h ${minutes} min`;
+  }
+  return `${minutes} min`;
+}
+
 interface UserLocation {
   lat: number;
   lng: number;
+}
+
+interface RouteInfo {
+  distance: string;
+  duration: string;
+  durationValue: number;
+  steps: Array<{
+    instruction: string;
+    distance: string;
+    duration: string;
+  }>;
+}
+
+interface ExperienceWithDistance {
+  id: number;
+  name: string;
+  state: string;
+  municipality: string | null;
+  community: string | null;
+  category: string | null;
+  description: string | null;
+  shortDescription: string | null;
+  imageUrl: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  isFeatured: boolean | null;
+  distance: number | null;
 }
 
 export default function Geoportal() {
@@ -123,11 +179,21 @@ export default function Geoportal() {
   const [maxDistance, setMaxDistance] = useState(100); // km
   const [sortByDistance, setSortByDistance] = useState(false);
   
+  // Estados para rutas
+  const [showRouteDialog, setShowRouteDialog] = useState(false);
+  const [routeDestination, setRouteDestination] = useState<ExperienceWithDistance | null>(null);
+  const [travelMode, setTravelMode] = useState<string>("DRIVING");
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+  const [showRouteOnMap, setShowRouteOnMap] = useState(false);
+  
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null);
+  const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
   const { data: experiences, isLoading } = trpc.experiences.list.useQuery({
     state: selectedState !== "all" ? selectedState : undefined,
@@ -261,6 +327,7 @@ export default function Geoportal() {
     setUseDistanceFilter(false);
     setSortByDistance(false);
     setLocationError(null);
+    clearRoute();
     
     // Remover marcador de usuario y círculo
     if (userMarkerRef.current) {
@@ -272,6 +339,131 @@ export default function Geoportal() {
       circleRef.current = null;
     }
   };
+
+  // Función para calcular ruta
+  const calculateRoute = useCallback(async (destination: ExperienceWithDistance, mode: string) => {
+    if (!userLocation || !destination.latitude || !destination.longitude) {
+      toast.error("Se requiere tu ubicación para calcular la ruta");
+      return;
+    }
+
+    if (!mapRef.current) {
+      toast.error("El mapa no está disponible");
+      return;
+    }
+
+    setIsCalculatingRoute(true);
+
+    try {
+      // Inicializar DirectionsService si no existe
+      if (!directionsServiceRef.current) {
+        directionsServiceRef.current = new google.maps.DirectionsService();
+      }
+
+      // Inicializar DirectionsRenderer si no existe
+      if (!directionsRendererRef.current) {
+        directionsRendererRef.current = new google.maps.DirectionsRenderer({
+          map: mapRef.current,
+          suppressMarkers: false,
+          polylineOptions: {
+            strokeColor: "#3b82f6",
+            strokeWeight: 5,
+            strokeOpacity: 0.8,
+          },
+        });
+      } else {
+        directionsRendererRef.current.setMap(mapRef.current);
+      }
+
+      const request: google.maps.DirectionsRequest = {
+        origin: userLocation,
+        destination: { lat: Number(destination.latitude), lng: Number(destination.longitude) },
+        travelMode: mode as google.maps.TravelMode,
+        unitSystem: google.maps.UnitSystem.METRIC,
+        language: "es",
+      };
+
+      directionsServiceRef.current.route(request, (result, status) => {
+        setIsCalculatingRoute(false);
+
+        if (status === "OK" && result) {
+          directionsRendererRef.current?.setDirections(result);
+          setShowRouteOnMap(true);
+
+          const route = result.routes[0];
+          const leg = route.legs[0];
+
+          // Extraer información de la ruta
+          const steps = leg.steps.map(step => ({
+            instruction: step.instructions.replace(/<[^>]*>/g, ''), // Remover HTML
+            distance: step.distance?.text || '',
+            duration: step.duration?.text || '',
+          }));
+
+          setRouteInfo({
+            distance: leg.distance?.text || '',
+            duration: leg.duration?.text || '',
+            durationValue: leg.duration?.value || 0,
+            steps,
+          });
+
+          toast.success("Ruta calculada correctamente");
+        } else {
+          let errorMessage = "No se pudo calcular la ruta";
+          switch (status) {
+            case "ZERO_RESULTS":
+              errorMessage = "No se encontró una ruta disponible";
+              break;
+            case "NOT_FOUND":
+              errorMessage = "Ubicación no encontrada";
+              break;
+            case "OVER_QUERY_LIMIT":
+              errorMessage = "Límite de consultas excedido";
+              break;
+          }
+          toast.error(errorMessage);
+          setRouteInfo(null);
+        }
+      });
+    } catch (error) {
+      setIsCalculatingRoute(false);
+      toast.error("Error al calcular la ruta");
+      console.error("Error calculating route:", error);
+    }
+  }, [userLocation]);
+
+  // Función para limpiar la ruta
+  const clearRoute = useCallback(() => {
+    if (directionsRendererRef.current) {
+      directionsRendererRef.current.setMap(null);
+    }
+    setShowRouteOnMap(false);
+    setRouteInfo(null);
+    setRouteDestination(null);
+  }, []);
+
+  // Función para abrir diálogo de ruta
+  const openRouteDialog = useCallback((exp: ExperienceWithDistance) => {
+    if (!userLocation) {
+      toast.error("Primero activa tu ubicación para ver cómo llegar");
+      return;
+    }
+    setRouteDestination(exp);
+    setShowRouteDialog(true);
+    calculateRoute(exp, travelMode);
+  }, [userLocation, travelMode, calculateRoute]);
+
+  // Función para abrir en Google Maps
+  const openInGoogleMaps = useCallback(() => {
+    if (!userLocation || !routeDestination?.latitude || !routeDestination?.longitude) return;
+    
+    const origin = `${userLocation.lat},${userLocation.lng}`;
+    const destination = `${routeDestination.latitude},${routeDestination.longitude}`;
+    const modeParam = travelMode === "DRIVING" ? "driving" : travelMode === "TRANSIT" ? "transit" : "walking";
+    
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=${modeParam}`;
+    window.open(url, '_blank');
+  }, [userLocation, routeDestination, travelMode]);
 
   const hasActiveFilters = searchTerm || selectedState !== "all" || selectedCategory !== "all" || useDistanceFilter;
 
@@ -329,7 +521,7 @@ export default function Geoportal() {
     });
 
     // Crear círculo de radio si está activo el filtro por distancia
-    if (useDistanceFilter && maxDistance > 0) {
+    if (useDistanceFilter && maxDistance > 0 && !showRouteOnMap) {
       if (circleRef.current) {
         circleRef.current.setMap(null);
       }
@@ -344,14 +536,23 @@ export default function Geoportal() {
         strokeWeight: 2,
       });
     }
-  }, [userLocation, useDistanceFilter, maxDistance]);
+  }, [userLocation, useDistanceFilter, maxDistance, showRouteOnMap]);
 
   // Actualizar círculo cuando cambia el radio
   useEffect(() => {
+    if (showRouteOnMap) {
+      // Ocultar círculo cuando se muestra la ruta
+      if (circleRef.current) {
+        circleRef.current.setMap(null);
+      }
+      return;
+    }
+    
     if (circleRef.current && userLocation) {
       if (useDistanceFilter && maxDistance > 0) {
         circleRef.current.setRadius(maxDistance * 1000);
         circleRef.current.setCenter(userLocation);
+        circleRef.current.setMap(mapRef.current);
       } else {
         circleRef.current.setMap(null);
         circleRef.current = null;
@@ -368,10 +569,13 @@ export default function Geoportal() {
         strokeWeight: 2,
       });
     }
-  }, [userLocation, useDistanceFilter, maxDistance]);
+  }, [userLocation, useDistanceFilter, maxDistance, showRouteOnMap]);
 
   // Función para crear marcadores en el mapa
   const createMarkers = useCallback((map: google.maps.Map) => {
+    // Si se está mostrando una ruta, no recrear marcadores
+    if (showRouteOnMap) return;
+    
     // Limpiar marcadores existentes
     markersRef.current.forEach(marker => {
       marker.map = null;
@@ -424,11 +628,32 @@ export default function Geoportal() {
         content: markerElement,
       });
 
-      // Contenido del InfoWindow con distancia
+      // Contenido del InfoWindow con distancia y botón de ruta
       const distanceText = exp.distance !== null ? `<span style="font-size: 12px; color: #3b82f6; font-weight: 500;">📍 ${formatDistance(exp.distance)} de ti</span>` : '';
+      const routeButton = userLocation ? `
+        <button 
+          onclick="window.dispatchEvent(new CustomEvent('openRoute', { detail: ${exp.id} }))"
+          style="
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #3b82f6;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 8px;
+          "
+        >
+          🧭 Cómo llegar
+        </button>
+      ` : '';
       
       const infoContent = `
-        <div style="max-width: 280px; font-family: system-ui, sans-serif;">
+        <div style="max-width: 300px; font-family: system-ui, sans-serif;">
           ${exp.imageUrl ? `
             <img src="${exp.imageUrl}" alt="${exp.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px 8px 0 0; margin: -8px -8px 8px -8px; width: calc(100% + 16px);" />
           ` : ''}
@@ -436,7 +661,7 @@ export default function Geoportal() {
           <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; line-height: 1.4;">
             ${exp.shortDescription || exp.description?.substring(0, 100) + '...' || 'Experiencia de turismo comunitario'}
           </p>
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
             <span style="
               background-color: ${categoryColor}20;
               color: ${categoryColor};
@@ -450,17 +675,19 @@ export default function Geoportal() {
             <span style="font-size: 12px; color: #888;">📍 ${exp.state}</span>
             ${distanceText}
           </div>
-          <a href="/experiencia/${exp.id}" style="
-            display: inline-block;
-            background-color: #166534;
-            color: white;
-            padding: 6px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            margin-top: 4px;
-          ">Ver detalles →</a>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            ${routeButton}
+            <a href="/experiencia/${exp.id}" style="
+              display: inline-block;
+              background-color: #166534;
+              color: white;
+              padding: 6px 12px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-size: 12px;
+              font-weight: 500;
+            ">Ver detalles →</a>
+          </div>
         </div>
       `;
 
@@ -507,7 +734,23 @@ export default function Geoportal() {
         map.setZoom(10);
       }
     }
-  }, [experiencesWithCoords, userLocation, createUserMarker]);
+  }, [experiencesWithCoords, userLocation, createUserMarker, showRouteOnMap]);
+
+  // Escuchar evento de abrir ruta desde InfoWindow
+  useEffect(() => {
+    const handleOpenRoute = (event: CustomEvent) => {
+      const expId = event.detail;
+      const exp = experiencesWithCoords.find(e => e.id === expId);
+      if (exp) {
+        openRouteDialog(exp);
+      }
+    };
+
+    window.addEventListener('openRoute', handleOpenRoute as EventListener);
+    return () => {
+      window.removeEventListener('openRoute', handleOpenRoute as EventListener);
+    };
+  }, [experiencesWithCoords, openRouteDialog]);
 
   // Callback cuando el mapa está listo
   const handleMapReady = useCallback((map: google.maps.Map) => {
@@ -517,13 +760,17 @@ export default function Geoportal() {
 
   // Actualizar marcadores cuando cambian las experiencias filtradas
   useEffect(() => {
-    if (mapRef.current && viewMode === "map") {
+    if (mapRef.current && viewMode === "map" && !showRouteOnMap) {
       createMarkers(mapRef.current);
     }
-  }, [filteredExperiences, viewMode, createMarkers, userLocation]);
+  }, [filteredExperiences, viewMode, createMarkers, userLocation, showRouteOnMap]);
 
   // Función para centrar el mapa en una experiencia
   const focusOnExperience = (exp: typeof filteredExperiences[0]) => {
+    if (showRouteOnMap) {
+      clearRoute();
+    }
+    
     if (mapRef.current && exp.latitude && exp.longitude) {
       mapRef.current.panTo({ lat: Number(exp.latitude), lng: Number(exp.longitude) });
       mapRef.current.setZoom(12);
@@ -534,9 +781,30 @@ export default function Geoportal() {
       if (marker && infoWindowRef.current) {
         const categoryColor = categoryColors[exp.category || "ecoturismo"] || "#166534";
         const distanceText = exp.distance !== null ? `<span style="font-size: 12px; color: #3b82f6; font-weight: 500;">📍 ${formatDistance(exp.distance)} de ti</span>` : '';
+        const routeButton = userLocation ? `
+          <button 
+            onclick="window.dispatchEvent(new CustomEvent('openRoute', { detail: ${exp.id} }))"
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 4px;
+              background-color: #3b82f6;
+              color: white;
+              padding: 6px 12px;
+              border-radius: 6px;
+              border: none;
+              font-size: 12px;
+              font-weight: 500;
+              cursor: pointer;
+              margin-right: 8px;
+            "
+          >
+            🧭 Cómo llegar
+          </button>
+        ` : '';
         
         const infoContent = `
-          <div style="max-width: 280px; font-family: system-ui, sans-serif;">
+          <div style="max-width: 300px; font-family: system-ui, sans-serif;">
             ${exp.imageUrl ? `
               <img src="${exp.imageUrl}" alt="${exp.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px 8px 0 0; margin: -8px -8px 8px -8px; width: calc(100% + 16px);" />
             ` : ''}
@@ -544,7 +812,7 @@ export default function Geoportal() {
             <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; line-height: 1.4;">
               ${exp.shortDescription || exp.description?.substring(0, 100) + '...' || 'Experiencia de turismo comunitario'}
             </p>
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
               <span style="
                 background-color: ${categoryColor}20;
                 color: ${categoryColor};
@@ -558,17 +826,19 @@ export default function Geoportal() {
               <span style="font-size: 12px; color: #888;">📍 ${exp.state}</span>
               ${distanceText}
             </div>
-            <a href="/experiencia/${exp.id}" style="
-              display: inline-block;
-              background-color: #166534;
-              color: white;
-              padding: 6px 16px;
-              border-radius: 6px;
-              text-decoration: none;
-              font-size: 13px;
-              font-weight: 500;
-              margin-top: 4px;
-            ">Ver detalles →</a>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              ${routeButton}
+              <a href="/experiencia/${exp.id}" style="
+                display: inline-block;
+                background-color: #166534;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 500;
+              ">Ver detalles →</a>
+            </div>
           </div>
         `;
         infoWindowRef.current.setContent(infoContent);
@@ -653,6 +923,12 @@ export default function Geoportal() {
                   <Button variant="ghost" size="sm" onClick={clearFilters}>
                     <X className="h-4 w-4 mr-1" />
                     Limpiar
+                  </Button>
+                )}
+                {showRouteOnMap && (
+                  <Button variant="outline" size="sm" onClick={clearRoute} className="text-blue-600">
+                    <X className="h-4 w-4 mr-1" />
+                    Cerrar ruta
                   </Button>
                 )}
                 <div className="flex border rounded-lg">
@@ -773,7 +1049,7 @@ export default function Geoportal() {
             </div>
 
             {/* Active Filters */}
-            {hasActiveFilters && (
+            {(hasActiveFilters || showRouteOnMap) && (
               <div className="flex flex-wrap gap-2">
                 {searchTerm && (
                   <Badge variant="secondary" className="gap-1">
@@ -798,6 +1074,13 @@ export default function Geoportal() {
                     <Navigation className="h-3 w-3" />
                     Dentro de {maxDistance > 0 ? `${maxDistance} km` : "cualquier distancia"}
                     <X className="h-3 w-3 cursor-pointer" onClick={() => setUseDistanceFilter(false)} />
+                  </Badge>
+                )}
+                {showRouteOnMap && routeDestination && (
+                  <Badge className="gap-1 bg-blue-500 text-white">
+                    <Route className="h-3 w-3" />
+                    Ruta a: {routeDestination.name}
+                    <X className="h-3 w-3 cursor-pointer" onClick={clearRoute} />
                   </Badge>
                 )}
               </div>
@@ -926,12 +1209,28 @@ export default function Geoportal() {
                             <MapPin className="h-3 w-3" />
                             {exp.state}
                           </div>
-                          {exp.distance !== null && (
-                            <div className="flex items-center gap-1 text-xs text-blue-600 mt-1">
-                              <Navigation className="h-3 w-3" />
-                              {formatDistance(exp.distance)}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 mt-1">
+                            {exp.distance !== null && (
+                              <span className="text-xs text-blue-600 flex items-center gap-1">
+                                <Navigation className="h-3 w-3" />
+                                {formatDistance(exp.distance)}
+                              </span>
+                            )}
+                            {userLocation && hasCoords && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs text-blue-600 hover:text-blue-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openRouteDialog(exp);
+                                }}
+                              >
+                                <Route className="h-3 w-3 mr-1" />
+                                Ruta
+                              </Button>
+                            )}
+                          </div>
                           {!hasCoords && (
                             <span className="text-xs text-amber-600">(Sin ubicación)</span>
                           )}
@@ -949,9 +1248,10 @@ export default function Geoportal() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredExperiences.map((exp) => {
                 const CategoryIcon = categoryIcons[exp.category || "ecoturismo"] || Mountain;
+                const hasCoords = exp.latitude && exp.longitude;
                 return (
-                  <Link key={exp.id} href={`/experiencia/${exp.id}`}>
-                    <Card className="overflow-hidden hover-lift cursor-pointer group h-full">
+                  <Card key={exp.id} className="overflow-hidden hover-lift cursor-pointer group h-full">
+                    <Link href={`/experiencia/${exp.id}`}>
                       <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 relative overflow-hidden">
                         {exp.imageUrl ? (
                           <img
@@ -985,7 +1285,9 @@ export default function Geoportal() {
                           </div>
                         )}
                       </div>
-                      <CardContent className="p-5">
+                    </Link>
+                    <CardContent className="p-5">
+                      <Link href={`/experiencia/${exp.id}`}>
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                             {exp.name}
@@ -994,18 +1296,36 @@ export default function Geoportal() {
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                           {exp.shortDescription || exp.description || "Experiencia de turismo comunitario"}
                         </p>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-xs">
-                            <CategoryIcon className="h-3 w-3 mr-1" />
-                            {categories.find(c => c.value === exp.category)?.label || "Ecoturismo"}
-                          </Badge>
-                          <span className="text-primary text-sm font-medium flex items-center">
-                            Ver más <ChevronRight className="h-4 w-4" />
-                          </span>
+                      </Link>
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs">
+                          <CategoryIcon className="h-3 w-3 mr-1" />
+                          {categories.find(c => c.value === exp.category)?.label || "Ecoturismo"}
+                        </Badge>
+                        <div className="flex items-center gap-2">
+                          {userLocation && hasCoords && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                openRouteDialog(exp);
+                              }}
+                            >
+                              <Route className="h-3 w-3 mr-1" />
+                              Ruta
+                            </Button>
+                          )}
+                          <Link href={`/experiencia/${exp.id}`}>
+                            <span className="text-primary text-sm font-medium flex items-center">
+                              Ver más <ChevronRight className="h-4 w-4" />
+                            </span>
+                          </Link>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
@@ -1016,11 +1336,12 @@ export default function Geoportal() {
             <div className="space-y-4">
               {filteredExperiences.map((exp) => {
                 const CategoryIcon = categoryIcons[exp.category || "ecoturismo"] || Mountain;
+                const hasCoords = exp.latitude && exp.longitude;
                 return (
-                  <Link key={exp.id} href={`/experiencia/${exp.id}`}>
-                    <Card className="overflow-hidden hover-lift cursor-pointer group">
-                      <div className="flex flex-col sm:flex-row">
-                        <div className="sm:w-48 md:w-64 aspect-video sm:aspect-square bg-gradient-to-br from-primary/20 to-accent/20 relative overflow-hidden flex-shrink-0">
+                  <Card key={exp.id} className="overflow-hidden hover-lift cursor-pointer group">
+                    <div className="flex flex-col sm:flex-row">
+                      <Link href={`/experiencia/${exp.id}`} className="sm:w-48 md:w-64 flex-shrink-0">
+                        <div className="aspect-video sm:aspect-square bg-gradient-to-br from-primary/20 to-accent/20 relative overflow-hidden">
                           {exp.imageUrl ? (
                             <img
                               src={exp.imageUrl}
@@ -1041,54 +1362,186 @@ export default function Geoportal() {
                             </div>
                           )}
                         </div>
-                        <CardContent className="p-5 flex-1">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="secondary">{exp.state}</Badge>
-                                {exp.isFeatured && (
-                                  <Badge className="bg-accent text-accent-foreground">Destacado</Badge>
-                                )}
-                                {exp.distance !== null && (
-                                  <Badge variant="outline" className="text-blue-600 border-blue-200 gap-1">
-                                    <Navigation className="h-3 w-3" />
-                                    {formatDistance(exp.distance)}
-                                  </Badge>
-                                )}
-                              </div>
+                      </Link>
+                      <CardContent className="p-5 flex-1">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <Badge variant="secondary">{exp.state}</Badge>
+                              {exp.isFeatured && (
+                                <Badge className="bg-accent text-accent-foreground">Destacado</Badge>
+                              )}
+                              {exp.distance !== null && (
+                                <Badge variant="outline" className="text-blue-600 border-blue-200 gap-1">
+                                  <Navigation className="h-3 w-3" />
+                                  {formatDistance(exp.distance)}
+                                </Badge>
+                              )}
+                            </div>
+                            <Link href={`/experiencia/${exp.id}`}>
                               <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
                                 {exp.name}
                               </h3>
                               <p className="text-muted-foreground line-clamp-2 mb-3">
                                 {exp.shortDescription || exp.description || "Experiencia de turismo comunitario"}
                               </p>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                {exp.municipality && (
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
-                                    {exp.municipality}
-                                  </span>
-                                )}
-                                <Badge variant="outline" className="text-xs">
-                                  <CategoryIcon className="h-3 w-3 mr-1" />
-                                  {categories.find(c => c.value === exp.category)?.label || "Ecoturismo"}
-                                </Badge>
-                              </div>
+                            </Link>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                              {exp.municipality && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4" />
+                                  {exp.municipality}
+                                </span>
+                              )}
+                              <Badge variant="outline" className="text-xs">
+                                <CategoryIcon className="h-3 w-3 mr-1" />
+                                {categories.find(c => c.value === exp.category)?.label || "Ecoturismo"}
+                              </Badge>
+                              {userLocation && hasCoords && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                                  onClick={() => openRouteDialog(exp)}
+                                >
+                                  <Route className="h-3 w-3 mr-1" />
+                                  Cómo llegar
+                                </Button>
+                              )}
                             </div>
+                          </div>
+                          <Link href={`/experiencia/${exp.id}`}>
                             <Button variant="ghost" size="icon" className="hidden sm:flex">
                               <ChevronRight className="h-5 w-5" />
                             </Button>
-                          </div>
-                        </CardContent>
-                      </div>
-                    </Card>
-                  </Link>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </div>
+                  </Card>
                 );
               })}
             </div>
           )}
         </div>
       </section>
+
+      {/* Route Dialog */}
+      <Dialog open={showRouteDialog} onOpenChange={setShowRouteDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Route className="h-5 w-5 text-blue-600" />
+              Cómo llegar
+            </DialogTitle>
+            <DialogDescription>
+              {routeDestination?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Selector de modo de transporte */}
+            <div className="flex gap-2">
+              {travelModes.map((mode) => {
+                const Icon = mode.icon;
+                return (
+                  <Button
+                    key={mode.value}
+                    variant={travelMode === mode.value ? "default" : "outline"}
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      setTravelMode(mode.value);
+                      if (routeDestination) {
+                        calculateRoute(routeDestination, mode.value);
+                      }
+                    }}
+                  >
+                    <Icon className="h-4 w-4 mr-2" />
+                    {mode.label}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Información de la ruta */}
+            {isCalculatingRoute ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2 text-muted-foreground">Calculando ruta...</span>
+              </div>
+            ) : routeInfo ? (
+              <div className="space-y-4">
+                {/* Resumen */}
+                <div className="flex items-center gap-6 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Navigation className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Distancia</p>
+                      <p className="font-semibold text-foreground">{routeInfo.distance}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Tiempo estimado</p>
+                      <p className="font-semibold text-foreground">{routeInfo.duration}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pasos de la ruta */}
+                <div className="max-h-[200px] overflow-y-auto space-y-2">
+                  <p className="text-sm font-medium text-foreground">Indicaciones:</p>
+                  {routeInfo.steps.slice(0, 5).map((step, index) => (
+                    <div key={index} className="flex gap-3 text-sm">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-foreground">{step.instruction}</p>
+                        <p className="text-xs text-muted-foreground">{step.distance} • {step.duration}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {routeInfo.steps.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      +{routeInfo.steps.length - 5} pasos más
+                    </p>
+                  )}
+                </div>
+
+                {/* Botones de acción */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setShowRouteDialog(false);
+                      setViewMode("map");
+                    }}
+                  >
+                    <MapIcon className="h-4 w-4 mr-2" />
+                    Ver en mapa
+                  </Button>
+                  <Button
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    onClick={openInGoogleMaps}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Abrir en Google Maps
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Route className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                <p>No se pudo calcular la ruta</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
