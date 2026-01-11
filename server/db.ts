@@ -7,7 +7,8 @@ import {
   experienceBadges, InsertExperienceBadge,
   resources, InsertResource,
   contactRequests, InsertContactRequest,
-  courses, InsertCourse
+  courses, InsertCourse,
+  reviews, InsertReview, Review
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -334,6 +335,126 @@ export async function createCourse(data: InsertCourse) {
   if (!db) throw new Error("Database not available");
 
   return await db.insert(courses).values(data);
+}
+
+// ============ REVIEWS FUNCTIONS ============
+export async function getReviewsByExperience(experienceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      review: reviews,
+      userName: users.name,
+    })
+    .from(reviews)
+    .leftJoin(users, eq(reviews.userId, users.id))
+    .where(and(
+      eq(reviews.experienceId, experienceId),
+      eq(reviews.isApproved, true)
+    ))
+    .orderBy(desc(reviews.createdAt));
+}
+
+export async function getReviewStats(experienceId: number) {
+  const db = await getDb();
+  if (!db) return { averageRating: 0, totalReviews: 0, ratingDistribution: {} };
+
+  const [stats] = await db
+    .select({
+      avgRating: sql<number>`AVG(${reviews.rating})`,
+      totalReviews: sql<number>`COUNT(*)`,
+    })
+    .from(reviews)
+    .where(and(
+      eq(reviews.experienceId, experienceId),
+      eq(reviews.isApproved, true)
+    ));
+
+  const distribution = await db
+    .select({
+      rating: reviews.rating,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(reviews)
+    .where(and(
+      eq(reviews.experienceId, experienceId),
+      eq(reviews.isApproved, true)
+    ))
+    .groupBy(reviews.rating);
+
+  const ratingDistribution: Record<number, number> = {};
+  distribution.forEach(d => {
+    ratingDistribution[d.rating] = Number(d.count);
+  });
+
+  return {
+    averageRating: Number(stats?.avgRating || 0),
+    totalReviews: Number(stats?.totalReviews || 0),
+    ratingDistribution,
+  };
+}
+
+export async function createReview(data: InsertReview) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if user already reviewed this experience
+  const existing = await db
+    .select()
+    .from(reviews)
+    .where(and(
+      eq(reviews.experienceId, data.experienceId),
+      eq(reviews.userId, data.userId)
+    ))
+    .limit(1);
+
+  if (existing.length > 0) {
+    throw new Error("Ya has dejado una reseña para esta experiencia");
+  }
+
+  return await db.insert(reviews).values(data);
+}
+
+export async function deleteReview(reviewId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Only allow deletion of own reviews
+  const result = await db
+    .delete(reviews)
+    .where(and(
+      eq(reviews.id, reviewId),
+      eq(reviews.userId, userId)
+    ));
+
+  return result;
+}
+
+export async function getUserReviewForExperience(experienceId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(reviews)
+    .where(and(
+      eq(reviews.experienceId, experienceId),
+      eq(reviews.userId, userId)
+    ))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function incrementReviewHelpful(reviewId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(reviews)
+    .set({ helpfulCount: sql`${reviews.helpfulCount} + 1` })
+    .where(eq(reviews.id, reviewId));
 }
 
 // ============ STATS FUNCTIONS ============

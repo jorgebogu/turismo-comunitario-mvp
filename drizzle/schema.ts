@@ -161,3 +161,24 @@ export const courses = mysqlTable("courses", {
 
 export type Course = typeof courses.$inferSelect;
 export type InsertCourse = typeof courses.$inferInsert;
+
+/**
+ * Reseñas y Calificaciones de Experiencias
+ */
+export const reviews = mysqlTable("reviews", {
+  id: int("id").autoincrement().primaryKey(),
+  experienceId: int("experienceId").notNull(),
+  userId: int("userId").notNull(),
+  rating: int("rating").notNull(), // 1-5 estrellas
+  title: varchar("title", { length: 200 }),
+  comment: text("comment"),
+  visitDate: timestamp("visitDate"),
+  isVerified: boolean("isVerified").default(false),
+  isApproved: boolean("isApproved").default(true),
+  helpfulCount: int("helpfulCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = typeof reviews.$inferInsert;

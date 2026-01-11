@@ -83,3 +83,15 @@
 ## Bugs Corregidos
 
 - [x] Error de accesibilidad: DialogContent sin DialogTitle en Campus Virtual
+
+## Sistema de Reseñas y Calificaciones
+
+- [x] Crear tabla de reseñas en la base de datos
+- [x] Implementar API para crear, leer y eliminar reseñas
+- [x] Componente de estrellas para calificación
+- [x] Formulario para escribir reseñas
+- [x] Mostrar reseñas en la página de detalle de experiencia
+- [x] Calcular y mostrar promedio de calificaciones
+- [x] Distribución visual de calificaciones (barras)
+- [x] Botón "Marcar como útil" en reseñas
+- [x] Pruebas unitarias para el sistema de reseñas

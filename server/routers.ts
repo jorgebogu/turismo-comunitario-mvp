@@ -234,6 +234,57 @@ export const appRouter = router({
       }),
   }),
 
+  // Reseñas y Calificaciones
+  reviews: router({
+    getByExperience: publicProcedure
+      .input(z.object({ experienceId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getReviewsByExperience(input.experienceId);
+      }),
+
+    getStats: publicProcedure
+      .input(z.object({ experienceId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getReviewStats(input.experienceId);
+      }),
+
+    getUserReview: protectedProcedure
+      .input(z.object({ experienceId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        return await db.getUserReviewForExperience(input.experienceId, ctx.user.id);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        rating: z.number().min(1).max(5),
+        title: z.string().max(200).optional(),
+        comment: z.string().optional(),
+        visitDate: z.date().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await db.createReview({
+          ...input,
+          userId: ctx.user.id,
+        });
+        return { success: true, message: "Reseña publicada correctamente" };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ reviewId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deleteReview(input.reviewId, ctx.user.id);
+        return { success: true, message: "Reseña eliminada correctamente" };
+      }),
+
+    markHelpful: publicProcedure
+      .input(z.object({ reviewId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.incrementReviewHelpful(input.reviewId);
+        return { success: true };
+      }),
+  }),
+
   // Estadísticas generales
   stats: router({
     get: publicProcedure.query(async () => {

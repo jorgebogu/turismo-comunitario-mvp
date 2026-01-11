@@ -15,6 +15,13 @@
       "when": 1768088746416,
       "tag": "0001_nebulous_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1768091442109,
+      "tag": "0002_blushing_marrow",
+      "breakpoints": true
     }
   ]
 }
