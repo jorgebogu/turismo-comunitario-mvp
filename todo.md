@@ -64,3 +64,10 @@
 - [x] Popup con información al hacer clic en marcadores
 - [x] Lista lateral de experiencias sincronizada con el mapa
 - [x] Vista de mapa como opción por defecto
+
+- [x] Implementar geolocalización del usuario
+- [x] Agregar filtro de búsqueda por distancia (radio en km)
+- [x] Ordenar experiencias por distancia a la ubicación del usuario
+- [x] Mostrar distancia en las tarjetas de experiencias
+- [x] Círculo visual en el mapa mostrando el radio de búsqueda
+- [x] Marcador de ubicación del usuario con animación
