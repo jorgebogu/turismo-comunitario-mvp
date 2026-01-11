@@ -216,3 +216,12 @@
 - [x] Integrar galería en ExperienceDetail.tsx
 - [x] Agregar imágenes de ejemplo a las experiencias existentes
 - [x] Escribir pruebas unitarias para los nuevos procedimientos (10 tests)
+
+## Mejora de Descripciones y Fotografías de Experiencias
+
+- [x] Obtener lista completa de experiencias actuales (18 experiencias)
+- [x] Redactar descripciones mejoradas y más detalladas para cada experiencia
+- [x] Actualizar descripciones en la base de datos
+- [x] Buscar imágenes representativas de alta calidad para cada experiencia
+- [x] Agregar múltiples fotografías al carrusel de cada experiencia (3-4 imágenes por experiencia)
+- [x] Verificar que el carrusel funcione correctamente en todas las experiencias

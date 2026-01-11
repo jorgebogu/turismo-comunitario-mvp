@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE experiences SET \ndescription = 'Adéntrate en una de las reservas de biosfera más biodiversas de México, hogar de más de 2,300 especies de plantas y 800 especies de fauna. La comunidad local te guiará por senderos ancestrales a través de bosques de niebla, selvas medianas y matorrales desérticos. Participa en talleres de conservación, observa el quetzal en su hábitat natural y disfruta de la gastronomía serrana elaborada con ingredientes orgánicos cultivados por las familias locales. Una experiencia que combina aventura, aprendizaje y el compromiso genuino de las comunidades con la protección de su patrimonio natural.',\nshortDescription = 'Explora la biodiversidad única de la Sierra Gorda con guías comunitarios expertos en conservación y tradiciones serranas.'\nWHERE id = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute UPDATE experiences SET \ndescription = 'Adéntrate en una de las reservas de biosfera más biodiversas de México, hogar de más de 2,300 especies de plantas y 800 especies de fauna. La comunidad local te guiará por senderos ancestrales a través de bosques de niebla, selvas medianas y matorrales desérticos. Participa en talleres de conservación, observa el quetzal en su hábitat natural y disfruta de la gastronomía serrana elaborada con ingredientes orgánicos cultivados por las familias locales. Una experiencia que combina aventura, aprendizaje y el compromiso genuino de las comunidades con la protección de su patrimonio natural.',\nshortDescription = 'Explora la biodiversidad única de la Sierra Gorda con guías comunitarios expertos en conservación y tradiciones serranas.'\nWHERE id = 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 440
+}

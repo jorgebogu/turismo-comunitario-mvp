@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO experience_images (experienceId, imageUrl, title, description, displayOrder) VALUES\n(1, '/gallery/OvK2ukqjnYhZ.jpg', 'Vista panorámica Sierra Gorda', 'Impresionante vista de los valles y montañas de la Sierra Gorda', 1),\n(1, '/gallery/YOaHIpFyxAew.jpg', 'Bosque de niebla', 'Bosque de niebla característico de la reserva de biosfera', 2),\n(1, '/gallery/6CUf4Xrz7bgu.jpg', 'Cañones de la Sierra', 'Espectaculares formaciones rocosas de la Sierra Gorda', 3),\n(1, '/gallery/z8jwxUnxv0rC.jpg', 'Paisaje montañoso', 'Vistas de las montañas al amanecer', 4);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute INSERT INTO experience_images (experienceId, imageUrl, title, description, displayOrder) VALUES\n(1, '/gallery/OvK2ukqjnYhZ.jpg', 'Vista panorámica Sierra Gorda', 'Impresionante vista de los valles y montañas de la Sierra Gorda', 1),\n(1, '/gallery/YOaHIpFyxAew.jpg', 'Bosque de niebla', 'Bosque de niebla característico de la reserva de biosfera', 2),\n(1, '/gallery/6CUf4Xrz7bgu.jpg', 'Cañones de la Sierra', 'Espectaculares formaciones rocosas de la Sierra Gorda', 3),\n(1, '/gallery/z8jwxUnxv0rC.jpg', 'Paisaje montañoso', 'Vistas de las montañas al amanecer', 4);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 398
+}

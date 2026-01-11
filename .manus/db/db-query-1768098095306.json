@@ -1,0 +1,154 @@
+{
+  "query": "SELECT id, name, state, community, category, description FROM experiences WHERE isActive = 1 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, name, state, community, category, description FROM experiences WHERE isActive = 1 ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Ecoturismo Lacandón",
+      "state": "Chiapas",
+      "community": "Lacanjá Chansayab",
+      "category": "ecoturismo",
+      "description": "Explora la selva lacandona con guías locales de la comunidad maya. Descubre la rica biodiversidad de uno de los ecosistemas más importantes de México, hogar de jaguares, monos aulladores y cientos de especies de aves."
+    },
+    {
+      "id": "2",
+      "name": "Avistamiento de Ballenas en Baja",
+      "state": "Baja California Sur",
+      "community": "San Ignacio",
+      "category": "observacion_naturaleza",
+      "description": "Vive la experiencia única de observar ballenas grises en su santuario natural con comunidades pesqueras locales."
+    },
+    {
+      "id": "3",
+      "name": "Ruta del Mezcal Artesanal",
+      "state": "Oaxaca",
+      "community": "San Dionisio Ocotepec",
+      "category": "gastronomia",
+      "description": "Conoce el proceso tradicional de elaboración del mezcal en los valles de Oaxaca con maestros mezcaleros."
+    },
+    {
+      "id": "4",
+      "name": "Senderismo en la Sierra Gorda",
+      "state": "Querétaro",
+      "community": "NULL",
+      "category": "turismo_aventura",
+      "description": "Recorre los senderos de la Reserva de la Biosfera Sierra Gorda con guías comunitarios."
+    },
+    {
+      "id": "5",
+      "name": "Turismo Rural en la Huasteca",
+      "state": "San Luis Potosí",
+      "community": "NULL",
+      "category": "turismo_rural",
+      "description": "Sumérgete en la vida cotidiana de las comunidades teenek y náhuatl de la Huasteca Potosina."
+    },
+    {
+      "id": "6",
+      "name": "Observación de Aves en Yucatán",
+      "state": "Yucatán",
+      "community": "NULL",
+      "category": "observacion_naturaleza",
+      "description": "Descubre la increíble diversidad de aves de la Península de Yucatán con guías mayas especializados."
+    },
+    {
+      "id": "7",
+      "name": "Artesanías Textiles de Oaxaca",
+      "state": "Oaxaca",
+      "community": "Teotitlán del Valle",
+      "category": "turismo_cultural",
+      "description": "Aprende las técnicas ancestrales de tejido en telar de cintura con maestras artesanas zapotecas."
+    },
+    {
+      "id": "8",
+      "name": "Kayak en Manglares de Sian Kaan",
+      "state": "Quintana Roo",
+      "community": "Punta Allen",
+      "category": "turismo_aventura",
+      "description": "Navega en kayak por los canales de la Reserva de la Biosfera Sian Kaan, Patrimonio de la Humanidad."
+    },
+    {
+      "id": "9",
+      "name": "Selva Lacandona Expedition",
+      "state": "Chiapas",
+      "community": "Comunidad Lacandona",
+      "category": "ecoturismo",
+      "description": "Adéntrate en la majestuosa Selva Lacandona, una de las últimas selvas tropicales de Norteamérica. Guías lacandones te llevarán por senderos ancestrales, donde podrás observar monos aulladores, tucanes y jaguares en su hábitat natural. Incluye navegación por el río Usumacinta y visita a zonas arqueológicas mayas."
+    },
+    {
+      "id": "10",
+      "name": "Cascadas de Agua Azul",
+      "state": "Chiapas",
+      "community": "Ejido Agua Azul",
+      "category": "turismo_aventura",
+      "description": "Descubre las impresionantes cascadas de agua turquesa en la Sierra Norte de Chiapas. La comunidad local ofrece recorridos guiados por los senderos, baño en las pozas naturales y degustación de platillos tradicionales tzotziles. Un espectáculo natural que combina aventura y cultura indígena."
+    },
+    {
+      "id": "11",
+      "name": "Hierve el Agua Zapoteca",
+      "state": "Oaxaca",
+      "community": "Comunidad San Lorenzo Albarradas",
+      "category": "turismo_cultural",
+      "description": "Visita las cascadas petrificadas de Hierve el Agua, un fenómeno geológico único en el mundo. La comunidad zapoteca te guiará por este sitio sagrado, explicando la cosmovisión ancestral y las propiedades curativas de sus aguas minerales. Incluye temazcal tradicional y gastronomía oaxaqueña."
+    },
+    {
+      "id": "12",
+      "name": "Cenotes Sagrados de Yucatán",
+      "state": "Yucatán",
+      "community": "Cooperativa Cenotes Mayas",
+      "category": "turismo_aventura",
+      "description": "Sumérgete en los cenotes sagrados de la península de Yucatán, portales al inframundo maya. Guías certificados de comunidades mayas te llevarán a cenotes poco conocidos, donde podrás nadar, hacer snorkel y aprender sobre la importancia espiritual de estas formaciones para la cultura maya."
+    },
+    {
+      "id": "13",
+      "name": "Reserva de la Biosfera Sierra Gorda",
+      "state": "Querétaro",
+      "community": "Grupo Ecológico Sierra Gorda",
+      "category": "ecoturismo",
+      "description": "Explora la reserva de biosfera más biodiversa de México. La comunidad local ofrece senderismo por bosques de niebla, observación de aves endémicas, visita a misiones franciscanas del siglo XVIII y hospedaje en cabañas ecológicas. Un destino perfecto para el ecoturismo responsable."
+    },
+    {
+      "id": "14",
+      "name": "Reserva Sian Ka'an",
+      "state": "Quintana Roo",
+      "community": "Cooperativa Sian Ka'an",
+      "category": "ecoturismo",
+      "description": "Navega por los canales de la Reserva de la Biosfera Sian Ka'an, Patrimonio de la Humanidad. Pescadores mayas te guiarán en lancha por manglares, lagunas y arrecifes de coral. Observa delfines, manatíes, cocodrilos y más de 300 especies de aves en este paraíso natural."
+    },
+    {
+      "id": "15",
+      "name": "Barrancas del Cobre Tarahumara",
+      "state": "Chihuahua",
+      "community": "Comunidad Rarámuri Creel",
+      "category": "turismo_cultural",
+      "description": "Vive la experiencia de las Barrancas del Cobre con los rarámuris, el pueblo de los pies ligeros. Recorre cañones más profundos que el Gran Cañón, hospédate en cabañas tradicionales, participa en ceremonias ancestrales y conoce su artesanía de cestos y textiles únicos en el mundo."
+    },
+    {
+      "id": "16",
+      "name": "Islas Marietas Nayarit",
+      "state": "Nayarit",
+      "community": "Cooperativa Pesquera Punta de Mita",
+      "category": "turismo_aventura",
+      "description": "Descubre la famosa Playa Escondida y el santuario de aves de las Islas Marietas. Pescadores locales te llevarán en lancha para hacer snorkel con mantarrayas, tortugas y peces tropicales. Visita controlada para proteger este Parque Nacional y Reserva de la Biosfera."
+    },
+    {
+      "id": "17",
+      "name": "Ruta del Mezcal Zapoteco",
+      "state": "Oaxaca",
+      "community": "Unión de Mezcaleros de Santiago Matatlán",
+      "category": "gastronomia",
+      "description": "Recorre la capital mundial del mezcal con productores zapotecos. Visita palenques tradicionales, aprende el proceso artesanal de elaboración, degusta diferentes variedades de agave y participa en la cosecha del maguey. Incluye comida tradicional y hospedaje en la comunidad."
+    },
+    {
+      "id": "18",
+      "name": "Santuario de la Mariposa Monarca",
+      "state": "Michoacán",
+      "community": "Ejido El Rosario",
+      "category": "observacion_naturaleza",
+      "description": "Presencia uno de los fenómenos naturales más impresionantes del planeta: la llegada de millones de mariposas monarca. Guías locales te llevarán por senderos del bosque de oyamel hasta los santuarios donde hibernan. Disponible de noviembre a marzo. Incluye gastronomía purépecha."
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstate\tcommunity\tcategory\tdescription\n1\tEcoturismo Lacandón\tChiapas\tLacanjá Chansayab\tecoturismo\tExplora la selva lacandona con guías locales de la comunidad maya. Descubre la rica biodiversidad de uno de los ecosistemas más importantes de México, hogar de jaguares, monos aulladores y cientos de especies de aves.\n2\tAvistamiento de Ballenas en Baja\tBaja California Sur\tSan Ignacio\tobservacion_naturaleza\tVive la experiencia única de observar ballenas grises en su santuario natural con comunidades pesqueras locales.\n3\tRuta del Mezcal Artesanal\tOaxaca\tSan Dionisio Ocotepec\tgastronomia\tConoce el proceso tradicional de elaboración del mezcal en los valles de Oaxaca con maestros mezcaleros.\n4\tSenderismo en la Sierra Gorda\tQuerétaro\tNULL\tturismo_aventura\tRecorre los senderos de la Reserva de la Biosfera Sierra Gorda con guías comunitarios.\n5\tTurismo Rural en la Huasteca\tSan Luis Potosí\tNULL\tturismo_rural\tSumérgete en la vida cotidiana de las comunidades teenek y náhuatl de la Huasteca Potosina.\n6\tObservación de Aves en Yucatán\tYucatán\tNULL\tobservacion_naturaleza\tDescubre la increíble diversidad de aves de la Península de Yucatán con guías mayas especializados.\n7\tArtesanías Textiles de Oaxaca\tOaxaca\tTeotitlán del Valle\tturismo_cultural\tAprende las técnicas ancestrales de tejido en telar de cintura con maestras artesanas zapotecas.\n8\tKayak en Manglares de Sian Kaan\tQuintana Roo\tPunta Allen\tturismo_aventura\tNavega en kayak por los canales de la Reserva de la Biosfera Sian Kaan, Patrimonio de la Humanidad.\n9\tSelva Lacandona Expedition\tChiapas\tComunidad Lacandona\tecoturismo\tAdéntrate en la majestuosa Selva Lacandona, una de las últimas selvas tropicales de Norteamérica. Guías lacandones te llevarán por senderos ancestrales, donde podrás observar monos aulladores, tucanes y jaguares en su hábitat natural. Incluye navegación por el río Usumacinta y visita a zonas arqueológicas mayas.\n10\tCascadas de Agua Azul\tChiapas\tEjido Agua Azul\tturismo_aventura\tDescubre las impresionantes cascadas de agua turquesa en la Sierra Norte de Chiapas. La comunidad local ofrece recorridos guiados por los senderos, baño en las pozas naturales y degustación de platillos tradicionales tzotziles. Un espectáculo natural que combina aventura y cultura indígena.\n11\tHierve el Agua Zapoteca\tOaxaca\tComunidad San Lorenzo Albarradas\tturismo_cultural\tVisita las cascadas petrificadas de Hierve el Agua, un fenómeno geológico único en el mundo. La comunidad zapoteca te guiará por este sitio sagrado, explicando la cosmovisión ancestral y las propiedades curativas de sus aguas minerales. Incluye temazcal tradicional y gastronomía oaxaqueña.\n12\tCenotes Sagrados de Yucatán\tYucatán\tCooperativa Cenotes Mayas\tturismo_aventura\tSumérgete en los cenotes sagrados de la península de Yucatán, portales al inframundo maya. Guías certificados de comunidades mayas te llevarán a cenotes poco conocidos, donde podrás nadar, hacer snorkel y aprender sobre la importancia espiritual de estas formaciones para la cultura maya.\n13\tReserva de la Biosfera Sierra Gorda\tQuerétaro\tGrupo Ecológico Sierra Gorda\tecoturismo\tExplora la reserva de biosfera más biodiversa de México. La comunidad local ofrece senderismo por bosques de niebla, observación de aves endémicas, visita a misiones franciscanas del siglo XVIII y hospedaje en cabañas ecológicas. Un destino perfecto para el ecoturismo responsable.\n14\tReserva Sian Ka'an\tQuintana Roo\tCooperativa Sian Ka'an\tecoturismo\tNavega por los canales de la Reserva de la Biosfera Sian Ka'an, Patrimonio de la Humanidad. Pescadores mayas te guiarán en lancha por manglares, lagunas y arrecifes de coral. Observa delfines, manatíes, cocodrilos y más de 300 especies de aves en este paraíso natural.\n15\tBarrancas del Cobre Tarahumara\tChihuahua\tComunidad Rarámuri Creel\tturismo_cultural\tVive la experiencia de las Barrancas del Cobre con los rarámuris, el pueblo de los pies ligeros. Recorre cañones más profundos que el Gran Cañón, hospédate en cabañas tradicionales, participa en ceremonias ancestrales y conoce su artesanía de cestos y textiles únicos en el mundo.\n16\tIslas Marietas Nayarit\tNayarit\tCooperativa Pesquera Punta de Mita\tturismo_aventura\tDescubre la famosa Playa Escondida y el santuario de aves de las Islas Marietas. Pescadores locales te llevarán en lancha para hacer snorkel con mantarrayas, tortugas y peces tropicales. Visita controlada para proteger este Parque Nacional y Reserva de la Biosfera.\n17\tRuta del Mezcal Zapoteco\tOaxaca\tUnión de Mezcaleros de Santiago Matatlán\tgastronomia\tRecorre la capital mundial del mezcal con productores zapotecos. Visita palenques tradicionales, aprende el proceso artesanal de elaboración, degusta diferentes variedades de agave y participa en la cosecha del maguey. Incluye comida tradicional y hospedaje en la comunidad.\n18\tSantuario de la Mariposa Monarca\tMichoacán\tEjido El Rosario\tobservacion_naturaleza\tPresencia uno de los fenómenos naturales más impresionantes del planeta: la llegada de millones de mariposas monarca. Guías locales te llevarán por senderos del bosque de oyamel hasta los santuarios donde hibernan. Disponible de noviembre a marzo. Incluye gastronomía purépecha.\n",
+  "stderr": "",
+  "execution_time_ms": 407
+}
