@@ -240,3 +240,7 @@
 - [x] Agregar favicon al proyecto (favicon.ico, favicon-16.png, favicon-32.png, apple-touch-icon.png)
 - [x] Configurar meta etiquetas de favicon en index.html
 - [x] Agregar theme-color para navegadores móviles (#166534)
+
+## Documentación
+
+- [x] Crear archivo README.md para el repositorio
