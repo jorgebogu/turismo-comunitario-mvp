@@ -225,3 +225,10 @@
 - [x] Buscar imágenes representativas de alta calidad para cada experiencia
 - [x] Agregar múltiples fotografías al carrusel de cada experiencia (3-4 imágenes por experiencia)
 - [x] Verificar que el carrusel funcione correctamente en todas las experiencias
+
+## Optimización SEO
+
+- [x] Agregar meta descripción a la página principal (50-160 caracteres)
+- [x] Agregar palabras clave (meta keywords) a la página principal
+- [x] Agregar meta etiquetas Open Graph para redes sociales
+- [x] Cambiar idioma del documento a es-MX
