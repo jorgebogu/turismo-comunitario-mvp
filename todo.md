@@ -161,3 +161,16 @@
 - [x] Pruebas unitarias para el sistema de disponibilidad (12 tests)
 - [x] Configuración de disponibilidad por día de la semana
 - [x] Integración del calendario en el formulario de reservación
+## Panel de Administración para Comunidades
+
+- [x] Crear página principal del panel de administración (/admin)
+- [x] Implementar dashboard con estadísticas de reservaciones
+- [x] Crear vista de lista de reservaciones pendientes
+- [x] Implementar acciones de confirmar/rechazar reservaciones
+- [x] Crear calendario de gestión de disponibilidad (/admin/disponibilidad)
+- [x] Permitir bloquear/desbloquear fechas específicas
+- [x] Configurar capacidad máxima por día
+- [x] Mostrar historial de reservaciones
+- [x] Agregar filtros por estado y experiencia
+- [x] Enlace al panel en el menú de usuario
+- [x] Pruebas unitarias para las APIs de administración (14 tests)

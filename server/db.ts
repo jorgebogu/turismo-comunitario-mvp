@@ -1246,3 +1246,184 @@ export async function getCalendarData(experienceId: number, year: number, month:
     config: Array.isArray(config) ? config : [] 
   };
 }
+
+
+// ============ ADMIN FUNCTIONS ============
+
+export async function getAdminReservations(options?: {
+  experienceId?: number;
+  status?: string;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db
+    .select({
+      reservation: reservations,
+      experience: experiences,
+      user: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+    })
+    .from(reservations)
+    .leftJoin(experiences, eq(reservations.experienceId, experiences.id))
+    .leftJoin(users, eq(reservations.userId, users.id));
+
+  const conditions = [];
+
+  if (options?.experienceId) {
+    conditions.push(eq(reservations.experienceId, options.experienceId));
+  }
+  if (options?.status) {
+    conditions.push(eq(reservations.status, options.status as any));
+  }
+  if (options?.startDate) {
+    conditions.push(gte(reservations.visitDate, options.startDate));
+  }
+  if (options?.endDate) {
+    conditions.push(lte(reservations.visitDate, options.endDate));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  return await query
+    .orderBy(desc(reservations.createdAt))
+    .limit(options?.limit || 100);
+}
+
+export async function getAdminReservationStats(experienceId?: number) {
+  const db = await getDb();
+  if (!db) return { 
+    total: 0, 
+    pendientes: 0, 
+    confirmadas: 0, 
+    completadas: 0, 
+    canceladas: 0,
+    rechazadas: 0,
+    totalVisitors: 0,
+    thisMonth: 0,
+    thisWeek: 0
+  };
+
+  let baseQuery = db.select({
+    status: reservations.status,
+    count: sql<number>`count(*)`,
+    visitors: sql<number>`SUM(${reservations.numberOfAdults} + ${reservations.numberOfChildren})`
+  }).from(reservations);
+
+  if (experienceId) {
+    baseQuery = baseQuery.where(eq(reservations.experienceId, experienceId)) as any;
+  }
+
+  const results = await baseQuery.groupBy(reservations.status);
+
+  const stats = { 
+    total: 0, 
+    pendientes: 0, 
+    confirmadas: 0, 
+    completadas: 0, 
+    canceladas: 0,
+    rechazadas: 0,
+    totalVisitors: 0,
+    thisMonth: 0,
+    thisWeek: 0
+  };
+
+  results.forEach((r: any) => {
+    const count = Number(r.count);
+    stats.total += count;
+    stats.totalVisitors += Number(r.visitors) || 0;
+    if (r.status === 'pendiente') stats.pendientes = count;
+    if (r.status === 'confirmada') stats.confirmadas = count;
+    if (r.status === 'completada') stats.completadas = count;
+    if (r.status === 'cancelada') stats.canceladas = count;
+    if (r.status === 'rechazada') stats.rechazadas = count;
+  });
+
+  // Get this month's reservations
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+
+  const monthConditions = [gte(reservations.createdAt, startOfMonth)];
+  if (experienceId) {
+    monthConditions.push(eq(reservations.experienceId, experienceId));
+  }
+
+  const [monthResult] = await db.select({ count: sql<number>`count(*)` })
+    .from(reservations)
+    .where(and(...monthConditions));
+  stats.thisMonth = Number(monthResult?.count) || 0;
+
+  const weekConditions = [gte(reservations.createdAt, startOfWeek)];
+  if (experienceId) {
+    weekConditions.push(eq(reservations.experienceId, experienceId));
+  }
+
+  const [weekResult] = await db.select({ count: sql<number>`count(*)` })
+    .from(reservations)
+    .where(and(...weekConditions));
+  stats.thisWeek = Number(weekResult?.count) || 0;
+
+  return stats;
+}
+
+export async function confirmReservation(id: number, communityResponse?: string) {
+  return await updateReservationStatus(id, "confirmada", communityResponse);
+}
+
+export async function rejectReservation(id: number, communityResponse?: string) {
+  return await updateReservationStatus(id, "rechazada", communityResponse);
+}
+
+export async function completeReservation(id: number, communityResponse?: string) {
+  return await updateReservationStatus(id, "completada", communityResponse);
+}
+
+export async function getReservationsForCalendar(experienceId: number, year: number, month: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 0, 23, 59, 59);
+
+  return await db
+    .select({
+      id: reservations.id,
+      visitDate: reservations.visitDate,
+      visitEndDate: reservations.visitEndDate,
+      numberOfAdults: reservations.numberOfAdults,
+      numberOfChildren: reservations.numberOfChildren,
+      status: reservations.status,
+      visitorName: reservations.visitorName,
+    })
+    .from(reservations)
+    .where(and(
+      eq(reservations.experienceId, experienceId),
+      gte(reservations.visitDate, startDate),
+      lte(reservations.visitDate, endDate),
+      sql`${reservations.status} IN ('pendiente', 'confirmada')`
+    ))
+    .orderBy(reservations.visitDate);
+}
+
+export async function getExperiencesByAdmin(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // For now, return all experiences (in a real app, this would filter by community admin)
+  // TODO: Add community ownership to experiences table
+  return await db
+    .select()
+    .from(experiences)
+    .where(eq(experiences.isActive, true))
+    .orderBy(experiences.name);
+}

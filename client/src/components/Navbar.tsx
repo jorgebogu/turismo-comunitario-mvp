@@ -98,6 +98,11 @@ export default function Navbar() {
                     Mis Reservaciones
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin" className="w-full cursor-pointer font-medium text-primary">
+                    Panel de Administración
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>
                   Cerrar Sesión
                 </DropdownMenuItem>

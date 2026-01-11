@@ -692,6 +692,98 @@ export const appRouter = router({
       return { success: true, message: "Base de datos poblada correctamente" };
     }),
   }),
+
+  // Panel de Administración para Comunidades
+  communityAdmin: router({
+    // Obtener experiencias que administra el usuario
+    myExperiences: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getExperiencesByAdmin(ctx.user.id);
+    }),
+
+    // Obtener todas las reservaciones (con filtros)
+    getReservations: protectedProcedure
+      .input(z.object({
+        experienceId: z.number().optional(),
+        status: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        limit: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await db.getAdminReservations({
+          experienceId: input?.experienceId,
+          status: input?.status,
+          startDate: input?.startDate ? new Date(input.startDate) : undefined,
+          endDate: input?.endDate ? new Date(input.endDate) : undefined,
+          limit: input?.limit,
+        });
+      }),
+
+    // Obtener estadísticas de reservaciones
+    getStats: protectedProcedure
+      .input(z.object({
+        experienceId: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await db.getAdminReservationStats(input?.experienceId);
+      }),
+
+    // Confirmar una reservación
+    confirmReservation: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        message: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.confirmReservation(input.id, input.message);
+        return { success: true, message: "Reservación confirmada exitosamente" };
+      }),
+
+    // Rechazar una reservación
+    rejectReservation: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        message: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.rejectReservation(input.id, input.message);
+        return { success: true, message: "Reservación rechazada" };
+      }),
+
+    // Marcar reservación como completada
+    completeReservation: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        message: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.completeReservation(input.id, input.message);
+        return { success: true, message: "Reservación marcada como completada" };
+      }),
+
+    // Obtener reservaciones para el calendario
+    getCalendarReservations: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        year: z.number(),
+        month: z.number().min(1).max(12),
+      }))
+      .query(async ({ input }) => {
+        return await db.getReservationsForCalendar(input.experienceId, input.year, input.month);
+      }),
+
+    // Obtener detalle de una reservación
+    getReservationDetail: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const reservation = await db.getReservationById(input.id);
+        if (!reservation) {
+          throw new Error("Reservación no encontrada");
+        }
+        const experience = await db.getExperienceById(reservation.experienceId);
+        return { ...reservation, experience };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
