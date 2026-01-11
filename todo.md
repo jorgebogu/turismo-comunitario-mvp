@@ -79,3 +79,7 @@
 - [x] Opciones de modo de transporte (auto, transporte público, caminando)
 - [x] Diálogo con indicaciones paso a paso
 - [x] Botón para abrir ruta en Google Maps
+
+## Bugs Corregidos
+
+- [x] Error de accesibilidad: DialogContent sin DialogTitle en Campus Virtual
