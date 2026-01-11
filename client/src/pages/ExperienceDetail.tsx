@@ -3,6 +3,7 @@ import { useParams, Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import ReservationForm from "@/components/ReservationForm";
 import Footer from "@/components/Footer";
+import ImageGallery from "@/components/ImageGallery";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +65,12 @@ export default function ExperienceDetail() {
   const { data: relatedExperiences } = trpc.experiences.list.useQuery(
     { state: experience?.state, limit: 4 },
     { enabled: !!experience?.state }
+  );
+
+  // Obtener imágenes de la galería
+  const { data: galleryImages } = trpc.experiences.getImages.useQuery(
+    { experienceId },
+    { enabled: experienceId > 0 }
   );
 
   const handleShare = () => {
@@ -191,20 +198,12 @@ export default function ExperienceDetail() {
                 )}
               </div>
 
-              {/* Image */}
-              <div className="aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
-                {experience.imageUrl ? (
-                  <img
-                    src={experience.imageUrl}
-                    alt={experience.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <CategoryIcon className="h-20 w-20 text-primary/40" />
-                  </div>
-                )}
-              </div>
+              {/* Image Gallery */}
+              <ImageGallery
+                images={galleryImages || []}
+                fallbackImage={experience.imageUrl || undefined}
+                experienceName={experience.name}
+              />
 
               {/* Actions */}
               <div className="flex gap-3">

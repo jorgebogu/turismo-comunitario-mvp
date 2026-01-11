@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, name, state, imageUrl FROM experiences WHERE isActive = 1 ORDER BY id LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, name, state, imageUrl FROM experiences WHERE isActive = 1 ORDER BY id LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Ecoturismo Lacandón",
+      "state": "Chiapas",
+      "imageUrl": "https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800"
+    },
+    {
+      "id": "2",
+      "name": "Avistamiento de Ballenas en Baja",
+      "state": "Baja California Sur",
+      "imageUrl": "https://images.unsplash.com/photo-1568430462989-44163eb1752f?w=800"
+    },
+    {
+      "id": "3",
+      "name": "Ruta del Mezcal Artesanal",
+      "state": "Oaxaca",
+      "imageUrl": "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=800"
+    },
+    {
+      "id": "4",
+      "name": "Senderismo en la Sierra Gorda",
+      "state": "Querétaro",
+      "imageUrl": "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800"
+    },
+    {
+      "id": "5",
+      "name": "Turismo Rural en la Huasteca",
+      "state": "San Luis Potosí",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800"
+    },
+    {
+      "id": "6",
+      "name": "Observación de Aves en Yucatán",
+      "state": "Yucatán",
+      "imageUrl": "https://images.unsplash.com/photo-1480044965905-02098d419e96?w=800"
+    },
+    {
+      "id": "7",
+      "name": "Artesanías Textiles de Oaxaca",
+      "state": "Oaxaca",
+      "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800"
+    },
+    {
+      "id": "8",
+      "name": "Kayak en Manglares de Sian Kaan",
+      "state": "Quintana Roo",
+      "imageUrl": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800"
+    },
+    {
+      "id": "9",
+      "name": "Selva Lacandona Expedition",
+      "state": "Chiapas",
+      "imageUrl": "/experiences/chiapas-lacandona.jpg"
+    },
+    {
+      "id": "10",
+      "name": "Cascadas de Agua Azul",
+      "state": "Chiapas",
+      "imageUrl": "/experiences/cascadas-agua-azul.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstate\timageUrl\n1\tEcoturismo Lacandón\tChiapas\thttps://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=800\n2\tAvistamiento de Ballenas en Baja\tBaja California Sur\thttps://images.unsplash.com/photo-1568430462989-44163eb1752f?w=800\n3\tRuta del Mezcal Artesanal\tOaxaca\thttps://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=800\n4\tSenderismo en la Sierra Gorda\tQuerétaro\thttps://images.unsplash.com/photo-1551632811-561732d1e306?w=800\n5\tTurismo Rural en la Huasteca\tSan Luis Potosí\thttps://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800\n6\tObservación de Aves en Yucatán\tYucatán\thttps://images.unsplash.com/photo-1480044965905-02098d419e96?w=800\n7\tArtesanías Textiles de Oaxaca\tOaxaca\thttps://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800\n8\tKayak en Manglares de Sian Kaan\tQuintana Roo\thttps://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800\n9\tSelva Lacandona Expedition\tChiapas\t/experiences/chiapas-lacandona.jpg\n10\tCascadas de Agua Azul\tChiapas\t/experiences/cascadas-agua-azul.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 494
+}

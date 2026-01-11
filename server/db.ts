@@ -13,7 +13,8 @@ import {
   reservations, InsertReservation, Reservation,
   availability, InsertAvailability, Availability,
   availabilityConfig, InsertAvailabilityConfig, AvailabilityConfig,
-  blockedDates, InsertBlockedDate, BlockedDate
+  blockedDates, InsertBlockedDate, BlockedDate,
+  experienceImages, InsertExperienceImage, ExperienceImage
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1426,4 +1427,59 @@ export async function getExperiencesByAdmin(userId: number) {
     .from(experiences)
     .where(eq(experiences.isActive, true))
     .orderBy(experiences.name);
+}
+
+
+// ============ EXPERIENCE IMAGES FUNCTIONS ============
+export async function getExperienceImages(experienceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(experienceImages)
+    .where(eq(experienceImages.experienceId, experienceId))
+    .orderBy(experienceImages.displayOrder);
+}
+
+export async function createExperienceImage(data: InsertExperienceImage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(experienceImages).values(data);
+  return result;
+}
+
+export async function deleteExperienceImage(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(experienceImages).where(eq(experienceImages.id, id));
+}
+
+export async function updateExperienceImageOrder(id: number, displayOrder: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(experienceImages)
+    .set({ displayOrder })
+    .where(eq(experienceImages.id, id));
+}
+
+export async function setPrimaryImage(experienceId: number, imageId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // First, unset all primary flags for this experience
+  await db
+    .update(experienceImages)
+    .set({ isPrimary: false })
+    .where(eq(experienceImages.experienceId, experienceId));
+
+  // Then set the new primary image
+  await db
+    .update(experienceImages)
+    .set({ isPrimary: true })
+    .where(eq(experienceImages.id, imageId));
 }

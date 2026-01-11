@@ -207,3 +207,12 @@
 ## Bugs Reportados
 
 - [x] Error de hooks en ExperienceDetail: "Rendered more hooks than during the previous render" - useState declarado después de early returns (CORREGIDO: movido useState al inicio del componente)
+
+## Galería de Imágenes para Experiencias
+
+- [x] Crear tabla experienceImages en el esquema de base de datos
+- [x] Crear procedimientos tRPC para obtener imágenes de experiencias
+- [x] Implementar componente ImageGallery con carrusel interactivo
+- [x] Integrar galería en ExperienceDetail.tsx
+- [x] Agregar imágenes de ejemplo a las experiencias existentes
+- [x] Escribir pruebas unitarias para los nuevos procedimientos (10 tests)

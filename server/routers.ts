@@ -69,6 +69,51 @@ export const appRouter = router({
         }
         return await db.createExperience(input);
       }),
+
+    // Galería de imágenes de experiencias
+    getImages: publicProcedure
+      .input(z.object({ experienceId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getExperienceImages(input.experienceId);
+      }),
+
+    addImage: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        imageUrl: z.string().url(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        altText: z.string().optional(),
+        displayOrder: z.number().optional(),
+        isPrimary: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new Error("Solo administradores pueden agregar imágenes");
+        }
+        return await db.createExperienceImage(input);
+      }),
+
+    deleteImage: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new Error("Solo administradores pueden eliminar imágenes");
+        }
+        return await db.deleteExperienceImage(input.id);
+      }),
+
+    setPrimaryImage: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        imageId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new Error("Solo administradores pueden cambiar la imagen principal");
+        }
+        return await db.setPrimaryImage(input.experienceId, input.imageId);
+      }),
   }),
 
   // Distintivos / Certificaciones

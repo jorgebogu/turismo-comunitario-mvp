@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, name FROM experiences WHERE isActive = 1 ORDER BY id LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, name FROM experiences WHERE isActive = 1 ORDER BY id LIMIT 15;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Ecoturismo Lacandón"
+    },
+    {
+      "id": "2",
+      "name": "Avistamiento de Ballenas en Baja"
+    },
+    {
+      "id": "3",
+      "name": "Ruta del Mezcal Artesanal"
+    },
+    {
+      "id": "4",
+      "name": "Senderismo en la Sierra Gorda"
+    },
+    {
+      "id": "5",
+      "name": "Turismo Rural en la Huasteca"
+    },
+    {
+      "id": "6",
+      "name": "Observación de Aves en Yucatán"
+    },
+    {
+      "id": "7",
+      "name": "Artesanías Textiles de Oaxaca"
+    },
+    {
+      "id": "8",
+      "name": "Kayak en Manglares de Sian Kaan"
+    },
+    {
+      "id": "9",
+      "name": "Selva Lacandona Expedition"
+    },
+    {
+      "id": "10",
+      "name": "Cascadas de Agua Azul"
+    },
+    {
+      "id": "11",
+      "name": "Hierve el Agua Zapoteca"
+    },
+    {
+      "id": "12",
+      "name": "Cenotes Sagrados de Yucatán"
+    },
+    {
+      "id": "13",
+      "name": "Reserva de la Biosfera Sierra Gorda"
+    },
+    {
+      "id": "14",
+      "name": "Reserva Sian Ka'an"
+    },
+    {
+      "id": "15",
+      "name": "Barrancas del Cobre Tarahumara"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n1\tEcoturismo Lacandón\n2\tAvistamiento de Ballenas en Baja\n3\tRuta del Mezcal Artesanal\n4\tSenderismo en la Sierra Gorda\n5\tTurismo Rural en la Huasteca\n6\tObservación de Aves en Yucatán\n7\tArtesanías Textiles de Oaxaca\n8\tKayak en Manglares de Sian Kaan\n9\tSelva Lacandona Expedition\n10\tCascadas de Agua Azul\n11\tHierve el Agua Zapoteca\n12\tCenotes Sagrados de Yucatán\n13\tReserva de la Biosfera Sierra Gorda\n14\tReserva Sian Ka'an\n15\tBarrancas del Cobre Tarahumara\n",
+  "stderr": "",
+  "execution_time_ms": 421
+}

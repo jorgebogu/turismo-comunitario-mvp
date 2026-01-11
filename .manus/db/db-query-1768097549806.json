@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, name, state FROM experiences WHERE isActive = 1 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, name, state FROM experiences WHERE isActive = 1 ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Ecoturismo Lacandón",
+      "state": "Chiapas"
+    },
+    {
+      "id": "2",
+      "name": "Avistamiento de Ballenas en Baja",
+      "state": "Baja California Sur"
+    },
+    {
+      "id": "3",
+      "name": "Ruta del Mezcal Artesanal",
+      "state": "Oaxaca"
+    },
+    {
+      "id": "4",
+      "name": "Senderismo en la Sierra Gorda",
+      "state": "Querétaro"
+    },
+    {
+      "id": "5",
+      "name": "Turismo Rural en la Huasteca",
+      "state": "San Luis Potosí"
+    },
+    {
+      "id": "6",
+      "name": "Observación de Aves en Yucatán",
+      "state": "Yucatán"
+    },
+    {
+      "id": "7",
+      "name": "Artesanías Textiles de Oaxaca",
+      "state": "Oaxaca"
+    },
+    {
+      "id": "8",
+      "name": "Kayak en Manglares de Sian Kaan",
+      "state": "Quintana Roo"
+    },
+    {
+      "id": "9",
+      "name": "Selva Lacandona Expedition",
+      "state": "Chiapas"
+    },
+    {
+      "id": "10",
+      "name": "Cascadas de Agua Azul",
+      "state": "Chiapas"
+    },
+    {
+      "id": "11",
+      "name": "Hierve el Agua Zapoteca",
+      "state": "Oaxaca"
+    },
+    {
+      "id": "12",
+      "name": "Cenotes Sagrados de Yucatán",
+      "state": "Yucatán"
+    },
+    {
+      "id": "13",
+      "name": "Reserva de la Biosfera Sierra Gorda",
+      "state": "Querétaro"
+    },
+    {
+      "id": "14",
+      "name": "Reserva Sian Ka'an",
+      "state": "Quintana Roo"
+    },
+    {
+      "id": "15",
+      "name": "Barrancas del Cobre Tarahumara",
+      "state": "Chihuahua"
+    },
+    {
+      "id": "16",
+      "name": "Islas Marietas Nayarit",
+      "state": "Nayarit"
+    },
+    {
+      "id": "17",
+      "name": "Ruta del Mezcal Zapoteco",
+      "state": "Oaxaca"
+    },
+    {
+      "id": "18",
+      "name": "Santuario de la Mariposa Monarca",
+      "state": "Michoacán"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tstate\n1\tEcoturismo Lacandón\tChiapas\n2\tAvistamiento de Ballenas en Baja\tBaja California Sur\n3\tRuta del Mezcal Artesanal\tOaxaca\n4\tSenderismo en la Sierra Gorda\tQuerétaro\n5\tTurismo Rural en la Huasteca\tSan Luis Potosí\n6\tObservación de Aves en Yucatán\tYucatán\n7\tArtesanías Textiles de Oaxaca\tOaxaca\n8\tKayak en Manglares de Sian Kaan\tQuintana Roo\n9\tSelva Lacandona Expedition\tChiapas\n10\tCascadas de Agua Azul\tChiapas\n11\tHierve el Agua Zapoteca\tOaxaca\n12\tCenotes Sagrados de Yucatán\tYucatán\n13\tReserva de la Biosfera Sierra Gorda\tQuerétaro\n14\tReserva Sian Ka'an\tQuintana Roo\n15\tBarrancas del Cobre Tarahumara\tChihuahua\n16\tIslas Marietas Nayarit\tNayarit\n17\tRuta del Mezcal Zapoteco\tOaxaca\n18\tSantuario de la Mariposa Monarca\tMichoacán\n",
+  "stderr": "",
+  "execution_time_ms": 387
+}

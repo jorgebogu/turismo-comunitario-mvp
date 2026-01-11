@@ -344,3 +344,32 @@ export const blockedDates = mysqlTable("blocked_dates", {
 
 export type BlockedDate = typeof blockedDates.$inferSelect;
 export type InsertBlockedDate = typeof blockedDates.$inferInsert;
+
+/**
+ * Imágenes de Experiencias
+ * Galería de fotos para cada experiencia turística
+ */
+export const experienceImages = mysqlTable("experience_images", {
+  id: int("id").autoincrement().primaryKey(),
+  experienceId: int("experienceId").notNull(),
+  
+  // URL de la imagen
+  imageUrl: text("imageUrl").notNull(),
+  
+  // Información de la imagen
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  altText: varchar("altText", { length: 255 }),
+  
+  // Orden de visualización (menor número = primero)
+  displayOrder: int("displayOrder").default(0).notNull(),
+  
+  // Si es la imagen principal
+  isPrimary: boolean("isPrimary").default(false).notNull(),
+  
+  // Metadatos
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ExperienceImage = typeof experienceImages.$inferSelect;
+export type InsertExperienceImage = typeof experienceImages.$inferInsert;

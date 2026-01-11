@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, experienceId, title FROM experience_images ORDER BY experienceId, displayOrder;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, experienceId, title FROM experience_images ORDER BY experienceId, displayOrder;",
+  "rows": [
+    {
+      "id": "1",
+      "experienceId": "18",
+      "title": "Mariposas Monarca en el Santuario"
+    },
+    {
+      "id": "2",
+      "experienceId": "18",
+      "title": "Vuelo de Mariposas"
+    },
+    {
+      "id": "3",
+      "experienceId": "19",
+      "title": "Cascadas de Agua Azul"
+    },
+    {
+      "id": "4",
+      "experienceId": "19",
+      "title": "Pozas Naturales"
+    },
+    {
+      "id": "5",
+      "experienceId": "19",
+      "title": "Sendero junto al río"
+    },
+    {
+      "id": "6",
+      "experienceId": "20",
+      "title": "Cenote Sagrado"
+    },
+    {
+      "id": "7",
+      "experienceId": "20",
+      "title": "Cenote con vegetación"
+    },
+    {
+      "id": "8",
+      "experienceId": "20",
+      "title": "Aguas cristalinas"
+    },
+    {
+      "id": "9",
+      "experienceId": "21",
+      "title": "Hierve el Agua"
+    },
+    {
+      "id": "10",
+      "experienceId": "21",
+      "title": "Vista panorámica"
+    },
+    {
+      "id": "11",
+      "experienceId": "22",
+      "title": "Puente colgante"
+    },
+    {
+      "id": "12",
+      "experienceId": "22",
+      "title": "Vista de la sierra"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\texperienceId\ttitle\n1\t18\tMariposas Monarca en el Santuario\n2\t18\tVuelo de Mariposas\n3\t19\tCascadas de Agua Azul\n4\t19\tPozas Naturales\n5\t19\tSendero junto al río\n6\t20\tCenote Sagrado\n7\t20\tCenote con vegetación\n8\t20\tAguas cristalinas\n9\t21\tHierve el Agua\n10\t21\tVista panorámica\n11\t22\tPuente colgante\n12\t22\tVista de la sierra\n",
+  "stderr": "",
+  "execution_time_ms": 400
+}
