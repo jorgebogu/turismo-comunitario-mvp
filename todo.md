@@ -202,3 +202,8 @@
 
 - [x] Aviso de Privacidad - Información sobre protección de datos personales y derechos ARCO
 - [x] Términos de Uso - Condiciones de uso de la plataforma, responsabilidades y propiedad intelectual
+
+
+## Bugs Reportados
+
+- [x] Error de hooks en ExperienceDetail: "Rendered more hooks than during the previous render" - useState declarado después de early returns (CORREGIDO: movido useState al inicio del componente)

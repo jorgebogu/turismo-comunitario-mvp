@@ -52,6 +52,9 @@ const categoryIcons: Record<string, typeof Mountain> = {
 export default function ExperienceDetail() {
   const params = useParams<{ id: string }>();
   const experienceId = parseInt(params.id || "0", 10);
+  
+  // All hooks must be called before any early returns
+  const [showReservationForm, setShowReservationForm] = useState(false);
 
   const { data: experience, isLoading, error } = trpc.experiences.getById.useQuery(
     { id: experienceId },
@@ -121,7 +124,6 @@ export default function ExperienceDetail() {
 
   const CategoryIcon = categoryIcons[experience.category || "ecoturismo"] || Mountain;
   const categoryInfo = categories.find(c => c.value === experience.category);
-  const [showReservationForm, setShowReservationForm] = useState(false);
 
   const filteredRelated = relatedExperiences?.filter(e => e.id !== experience.id).slice(0, 3);
 
