@@ -128,3 +128,10 @@
 - [x] Agregar sección de certificados en "Mis Cursos"
 - [x] Pruebas unitarias para el sistema de certificados (21 tests)
 - [x] Enlace a verificación de certificados en el Footer
+
+## Experiencias Adicionales en el Geoportal
+
+- [x] Buscar imágenes de destinos turísticos reales de México (10 imágenes)
+- [x] Agregar 10 nuevas experiencias turísticas comunitarias
+- [x] Incluir variedad de estados y categorías (Chiapas, Oaxaca, Yucatán, Querétaro, Quintana Roo, Chihuahua, Nayarit, Michoacán)
+- [x] Total de experiencias en el geoportal: 18
