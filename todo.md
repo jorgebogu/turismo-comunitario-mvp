@@ -232,3 +232,11 @@
 - [x] Agregar palabras clave (meta keywords) a la página principal
 - [x] Agregar meta etiquetas Open Graph para redes sociales
 - [x] Cambiar idioma del documento a es-MX
+
+## Favicon Personalizado
+
+- [x] Diseñar favicon con identidad visual del proyecto (hoja verde con figura humana dorada)
+- [x] Generar favicon en múltiples tamaños (16x16, 32x32, 180x180, 512x512)
+- [x] Agregar favicon al proyecto (favicon.ico, favicon-16.png, favicon-32.png, apple-touch-icon.png)
+- [x] Configurar meta etiquetas de favicon en index.html
+- [x] Agregar theme-color para navegadores móviles (#166534)
