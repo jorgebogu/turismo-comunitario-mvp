@@ -88,6 +88,11 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/mis-cursos" className="w-full cursor-pointer">
+                    Mis Cursos
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>
                   Cerrar Sesión
                 </DropdownMenuItem>

@@ -180,7 +180,8 @@ export default function Campus() {
               {featuredCourses.map((course) => {
                 const levelInfo = courseLevels.find(l => l.value === course.level);
                 return (
-                  <Card key={course.id} className="overflow-hidden hover-lift group">
+                  <Link key={course.id} href={`/curso/${course.id}`}>
+                  <Card className="overflow-hidden hover-lift group cursor-pointer">
                     <div className="aspect-video bg-gradient-to-br from-blue-500/20 to-primary/20 relative">
                       {course.imageUrl ? (
                         <img
@@ -233,6 +234,7 @@ export default function Campus() {
                       )}
                     </CardContent>
                   </Card>
+                  </Link>
                 );
               })}
             </div>
@@ -319,7 +321,8 @@ export default function Campus() {
               {courses.map((course) => {
                 const levelInfo = courseLevels.find(l => l.value === course.level);
                 return (
-                  <Card key={course.id} className="overflow-hidden hover-lift group">
+                  <Link key={course.id} href={`/curso/${course.id}`}>
+                  <Card className="overflow-hidden hover-lift group cursor-pointer">
                     <div className="aspect-video bg-gradient-to-br from-blue-500/20 to-primary/20 relative">
                       {course.imageUrl ? (
                         <img
@@ -360,6 +363,7 @@ export default function Campus() {
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 );
               })}
             </div>

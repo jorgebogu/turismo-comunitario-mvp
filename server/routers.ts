@@ -285,6 +285,73 @@ export const appRouter = router({
       }),
   }),
 
+  // Inscripciones a Cursos
+  enrollments: router({
+    // Inscribirse a un curso
+    enroll: protectedProcedure
+      .input(z.object({ courseId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await db.enrollInCourse({
+          courseId: input.courseId,
+          userId: ctx.user.id,
+        });
+        if (result.alreadyEnrolled) {
+          return { success: true, message: "Ya estás inscrito en este curso", alreadyEnrolled: true };
+        }
+        return { success: true, message: "Inscripción exitosa", alreadyEnrolled: false };
+      }),
+
+    // Obtener inscripciones del usuario
+    myEnrollments: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserEnrollments(ctx.user.id);
+    }),
+
+    // Verificar si el usuario está inscrito en un curso
+    checkEnrollment: protectedProcedure
+      .input(z.object({ courseId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const enrollment = await db.getEnrollmentByCourseAndUser(input.courseId, ctx.user.id);
+        return { isEnrolled: !!enrollment, enrollment };
+      }),
+
+    // Actualizar progreso del curso
+    updateProgress: protectedProcedure
+      .input(z.object({
+        enrollmentId: z.number(),
+        progress: z.number().min(0).max(100),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Verificar que la inscripción pertenece al usuario
+        const enrollments = await db.getUserEnrollments(ctx.user.id);
+        const enrollment = enrollments.find(e => e.enrollment.id === input.enrollmentId);
+        if (!enrollment) {
+          throw new Error("Inscripción no encontrada");
+        }
+        await db.updateEnrollmentProgress(input.enrollmentId, input.progress);
+        return { success: true, message: "Progreso actualizado" };
+      }),
+
+    // Abandonar curso
+    drop: protectedProcedure
+      .input(z.object({ enrollmentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.dropEnrollment(input.enrollmentId, ctx.user.id);
+        return { success: true, message: "Has abandonado el curso" };
+      }),
+
+    // Obtener estadísticas del usuario
+    myStats: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserEnrollmentStats(ctx.user.id);
+    }),
+
+    // Obtener número de inscritos en un curso (público)
+    getCourseEnrollmentCount: publicProcedure
+      .input(z.object({ courseId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCourseEnrollmentCount(input.courseId);
+      }),
+  }),
+
   // Estadísticas generales
   stats: router({
     get: publicProcedure.query(async () => {

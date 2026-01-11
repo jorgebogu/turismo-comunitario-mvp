@@ -521,3 +521,139 @@ export async function seedDatabase() {
 
   console.log("[Database] Seeding complete!");
 }
+
+
+// ============ COURSE ENROLLMENTS FUNCTIONS ============
+import { courseEnrollments, InsertCourseEnrollment, CourseEnrollment } from "../drizzle/schema";
+
+export async function enrollInCourse(data: InsertCourseEnrollment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if already enrolled
+  const existing = await db
+    .select()
+    .from(courseEnrollments)
+    .where(and(
+      eq(courseEnrollments.courseId, data.courseId),
+      eq(courseEnrollments.userId, data.userId)
+    ))
+    .limit(1);
+
+  if (existing.length > 0) {
+    return { alreadyEnrolled: true, enrollment: existing[0] };
+  }
+
+  const result = await db.insert(courseEnrollments).values({
+    ...data,
+    startedAt: new Date(),
+    lastAccessedAt: new Date(),
+  });
+
+  return { alreadyEnrolled: false, insertId: result[0].insertId };
+}
+
+export async function getUserEnrollments(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      enrollment: courseEnrollments,
+      course: courses,
+    })
+    .from(courseEnrollments)
+    .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
+    .where(eq(courseEnrollments.userId, userId))
+    .orderBy(desc(courseEnrollments.lastAccessedAt));
+}
+
+export async function getEnrollmentByCourseAndUser(courseId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(courseEnrollments)
+    .where(and(
+      eq(courseEnrollments.courseId, courseId),
+      eq(courseEnrollments.userId, userId)
+    ))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateEnrollmentProgress(enrollmentId: number, progress: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  const updateData: Partial<CourseEnrollment> = {
+    progress,
+    lastAccessedAt: new Date(),
+    status: progress >= 100 ? "completed" : "in_progress",
+  };
+
+  if (progress >= 100) {
+    updateData.completedAt = new Date();
+  }
+
+  await db
+    .update(courseEnrollments)
+    .set(updateData)
+    .where(eq(courseEnrollments.id, enrollmentId));
+}
+
+export async function dropEnrollment(enrollmentId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  const result = await db
+    .update(courseEnrollments)
+    .set({ status: "dropped" })
+    .where(and(
+      eq(courseEnrollments.id, enrollmentId),
+      eq(courseEnrollments.userId, userId)
+    ));
+
+  return true;
+}
+
+export async function getCourseEnrollmentCount(courseId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(courseEnrollments)
+    .where(and(
+      eq(courseEnrollments.courseId, courseId),
+      sql`${courseEnrollments.status} != 'dropped'`
+    ));
+
+  return result[0]?.count || 0;
+}
+
+export async function getUserEnrollmentStats(userId: number) {
+  const db = await getDb();
+  if (!db) return { total: 0, inProgress: 0, completed: 0 };
+
+  const result = await db
+    .select({
+      status: courseEnrollments.status,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(courseEnrollments)
+    .where(eq(courseEnrollments.userId, userId))
+    .groupBy(courseEnrollments.status);
+
+  const stats = { total: 0, inProgress: 0, completed: 0, enrolled: 0 };
+  result.forEach(r => {
+    stats.total += Number(r.count);
+    if (r.status === "completed") stats.completed = Number(r.count);
+    if (r.status === "in_progress") stats.inProgress = Number(r.count);
+    if (r.status === "enrolled") stats.enrolled = Number(r.count);
+  });
+
+  return stats;
+}

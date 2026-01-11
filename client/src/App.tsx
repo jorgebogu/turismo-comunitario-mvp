@@ -13,6 +13,8 @@ import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import ExperienceDetail from "./pages/ExperienceDetail";
+import CourseDetail from "./pages/CourseDetail";
+import MyCourses from "./pages/MyCourses";
 
 function Router() {
   return (
@@ -26,6 +28,8 @@ function Router() {
       <Route path="/contacto" component={Contact} />
       <Route path="/acerca" component={About} />
       <Route path="/experiencia/:id" component={ExperienceDetail} />
+      <Route path="/curso/:id" component={CourseDetail} />
+      <Route path="/mis-cursos" component={MyCourses} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

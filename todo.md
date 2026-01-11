@@ -103,3 +103,16 @@
 - [x] Agregar cursos de capacitación al Campus Virtual (15 cursos en 3 niveles: básico, intermedio, avanzado)
 - [x] Poblar base de datos con contenido relevante para turismo comunitario
 - [x] Error de accesibilidad: DialogContent sin DialogTitle en Campus Virtual (corregido en sheet.tsx)
+
+## Sistema de Inscripción a Cursos
+
+- [x] Crear tabla de inscripciones en la base de datos
+- [x] Implementar API para inscribirse a cursos
+- [x] Implementar API para ver inscripciones del usuario
+- [x] Implementar API para actualizar progreso del curso
+- [x] Crear página de detalle de curso con botón de inscripción
+- [x] Crear página "Mis Cursos" para ver inscripciones y progreso
+- [x] Mostrar estado de inscripción en tarjetas de cursos
+- [x] Agregar pruebas unitarias para el sistema de inscripciones (12 tests)
+- [x] Enlace a "Mis Cursos" en el menú de usuario
+- [x] Estadísticas de inscripciones del usuario
