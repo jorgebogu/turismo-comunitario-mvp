@@ -102,3 +102,4 @@
 - [x] Agregar recursos educativos al Centro de Contenido (22 recursos: guías, manuales, normatividad, videos, infografías)
 - [x] Agregar cursos de capacitación al Campus Virtual (15 cursos en 3 niveles: básico, intermedio, avanzado)
 - [x] Poblar base de datos con contenido relevante para turismo comunitario
+- [x] Error de accesibilidad: DialogContent sin DialogTitle en Campus Virtual (corregido en sheet.tsx)
