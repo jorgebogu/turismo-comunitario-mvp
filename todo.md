@@ -174,3 +174,16 @@
 - [x] Agregar filtros por estado y experiencia
 - [x] Enlace al panel en el menú de usuario
 - [x] Pruebas unitarias para las APIs de administración (14 tests)
+
+## Sistema de Notificaciones por Email
+
+- [x] Configurar servicio de envío de notificaciones (usando Manus Notification Service)
+- [x] Crear plantillas de email HTML profesionales para notificaciones
+- [x] Notificar al propietario cuando se reciba nueva reservación
+- [x] Notificar cuando una reservación sea confirmada
+- [x] Notificar cuando una reservación sea rechazada (con motivo)
+- [x] Notificar cuando una reservación sea completada
+- [x] Plantilla de recordatorio antes de la fecha de visita
+- [x] Pruebas unitarias para el sistema de notificaciones (19 tests)
+- [x] Plantillas de email en formato HTML y texto plano
+- [x] Formato de fechas en español

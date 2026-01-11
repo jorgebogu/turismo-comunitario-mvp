@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
+import { notifyNewReservation, notifyReservationStatusChange, ReservationEmailData } from "./emailNotifications";
 
 export const appRouter = router({
   system: systemRouter,
@@ -486,6 +487,9 @@ export const appRouter = router({
         specialRequirements: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Get experience details for notification
+        const experience = await db.getExperienceById(input.experienceId);
+        
         const result = await db.createReservation({
           experienceId: input.experienceId,
           userId: ctx.user.id,
@@ -500,6 +504,27 @@ export const appRouter = router({
           specialRequirements: input.specialRequirements || null,
           status: "pendiente",
         });
+        
+        // Send notification to platform owner about new reservation
+        if (experience) {
+          const emailData: ReservationEmailData = {
+            reservationId: (result as any).insertId || 0,
+            experienceName: experience.name,
+            experienceLocation: `${experience.community}, ${experience.state}`,
+            visitorName: input.visitorName,
+            visitorEmail: input.visitorEmail,
+            visitorPhone: input.visitorPhone,
+            visitDate: new Date(input.visitDate),
+            numberOfAdults: input.numberOfAdults,
+            numberOfChildren: input.numberOfChildren,
+            message: input.message,
+          };
+          // Fire and forget - don't block the response
+          notifyNewReservation(emailData).catch(err => 
+            console.warn('[Notification] Failed to send new reservation notification:', err)
+          );
+        }
+        
         return { success: true, message: "Solicitud de reserva enviada exitosamente" };
       }),
 
@@ -735,7 +760,32 @@ export const appRouter = router({
         message: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
+        // Get reservation details before confirming
+        const reservation = await db.getReservationById(input.id);
         await db.confirmReservation(input.id, input.message);
+        
+        // Send notification about confirmation
+        if (reservation) {
+          const experience = await db.getExperienceById(reservation.experienceId);
+          if (experience) {
+            const emailData: ReservationEmailData = {
+              reservationId: input.id,
+              experienceName: experience.name,
+              experienceLocation: `${experience.community}, ${experience.state}`,
+              visitorName: reservation.visitorName,
+              visitorEmail: reservation.visitorEmail,
+              visitorPhone: reservation.visitorPhone || undefined,
+              visitDate: reservation.visitDate,
+              numberOfAdults: reservation.numberOfAdults,
+              numberOfChildren: reservation.numberOfChildren || undefined,
+              status: 'confirmed',
+            };
+            notifyReservationStatusChange(emailData, 'confirmed').catch(err =>
+              console.warn('[Notification] Failed to send confirmation notification:', err)
+            );
+          }
+        }
+        
         return { success: true, message: "Reservación confirmada exitosamente" };
       }),
 
@@ -746,7 +796,33 @@ export const appRouter = router({
         message: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
+        // Get reservation details before rejecting
+        const reservation = await db.getReservationById(input.id);
         await db.rejectReservation(input.id, input.message);
+        
+        // Send notification about rejection
+        if (reservation) {
+          const experience = await db.getExperienceById(reservation.experienceId);
+          if (experience) {
+            const emailData: ReservationEmailData = {
+              reservationId: input.id,
+              experienceName: experience.name,
+              experienceLocation: `${experience.community}, ${experience.state}`,
+              visitorName: reservation.visitorName,
+              visitorEmail: reservation.visitorEmail,
+              visitorPhone: reservation.visitorPhone || undefined,
+              visitDate: reservation.visitDate,
+              numberOfAdults: reservation.numberOfAdults,
+              numberOfChildren: reservation.numberOfChildren || undefined,
+              status: 'rejected',
+              rejectionReason: input.message,
+            };
+            notifyReservationStatusChange(emailData, 'rejected').catch(err =>
+              console.warn('[Notification] Failed to send rejection notification:', err)
+            );
+          }
+        }
+        
         return { success: true, message: "Reservación rechazada" };
       }),
 
@@ -757,7 +833,32 @@ export const appRouter = router({
         message: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
+        // Get reservation details before completing
+        const reservation = await db.getReservationById(input.id);
         await db.completeReservation(input.id, input.message);
+        
+        // Send notification about completion
+        if (reservation) {
+          const experience = await db.getExperienceById(reservation.experienceId);
+          if (experience) {
+            const emailData: ReservationEmailData = {
+              reservationId: input.id,
+              experienceName: experience.name,
+              experienceLocation: `${experience.community}, ${experience.state}`,
+              visitorName: reservation.visitorName,
+              visitorEmail: reservation.visitorEmail,
+              visitorPhone: reservation.visitorPhone || undefined,
+              visitDate: reservation.visitDate,
+              numberOfAdults: reservation.numberOfAdults,
+              numberOfChildren: reservation.numberOfChildren || undefined,
+              status: 'completed',
+            };
+            notifyReservationStatusChange(emailData, 'completed').catch(err =>
+              console.warn('[Notification] Failed to send completion notification:', err)
+            );
+          }
+        }
+        
         return { success: true, message: "Reservación marcada como completada" };
       }),
 
