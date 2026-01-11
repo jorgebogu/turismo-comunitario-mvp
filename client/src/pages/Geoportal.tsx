@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import { MapView } from "@/components/Map";
 import {
   Search,
   MapPin,
-  Filter,
   Grid3X3,
   List,
   Mountain,
@@ -27,6 +27,7 @@ import {
   Leaf,
   ChevronRight,
   X,
+  Map as MapIcon,
 } from "lucide-react";
 
 const categories = [
@@ -56,11 +57,25 @@ const categoryIcons: Record<string, typeof Mountain> = {
   gastronomia: Users,
 };
 
+const categoryColors: Record<string, string> = {
+  ecoturismo: "#166534",
+  turismo_rural: "#92400e",
+  turismo_aventura: "#0369a1",
+  turismo_cultural: "#7c3aed",
+  observacion_naturaleza: "#15803d",
+  gastronomia: "#dc2626",
+};
+
 export default function Geoportal() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "map">("map");
+  const [selectedExperience, setSelectedExperience] = useState<number | null>(null);
+  
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
 
   const { data: experiences, isLoading } = trpc.experiences.list.useQuery({
     state: selectedState !== "all" ? selectedState : undefined,
@@ -81,6 +96,11 @@ export default function Geoportal() {
     );
   }, [experiences, searchTerm]);
 
+  // Experiencias con coordenadas válidas
+  const experiencesWithCoords = useMemo(() => {
+    return filteredExperiences.filter(exp => exp.latitude && exp.longitude);
+  }, [filteredExperiences]);
+
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedState("all");
@@ -88,6 +108,198 @@ export default function Geoportal() {
   };
 
   const hasActiveFilters = searchTerm || selectedState !== "all" || selectedCategory !== "all";
+
+  // Función para crear marcadores en el mapa
+  const createMarkers = useCallback((map: google.maps.Map) => {
+    // Limpiar marcadores existentes
+    markersRef.current.forEach(marker => {
+      marker.map = null;
+    });
+    markersRef.current = [];
+
+    // Crear InfoWindow si no existe
+    if (!infoWindowRef.current) {
+      infoWindowRef.current = new google.maps.InfoWindow();
+    }
+
+    // Crear marcadores para cada experiencia
+    experiencesWithCoords.forEach((exp) => {
+      if (!exp.latitude || !exp.longitude) return;
+
+      const categoryColor = categoryColors[exp.category || "ecoturismo"] || "#166534";
+      
+      // Crear elemento personalizado para el marcador
+      const markerElement = document.createElement("div");
+      markerElement.className = "custom-marker";
+      markerElement.innerHTML = `
+        <div style="
+          background-color: ${categoryColor};
+          width: 36px;
+          height: 36px;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          border: 2px solid white;
+          cursor: pointer;
+          transition: transform 0.2s;
+        ">
+          <div style="
+            transform: rotate(45deg);
+            color: white;
+            font-size: 14px;
+          ">
+            📍
+          </div>
+        </div>
+      `;
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: Number(exp.latitude), lng: Number(exp.longitude) },
+        title: exp.name,
+        content: markerElement,
+      });
+
+      // Contenido del InfoWindow
+      const infoContent = `
+        <div style="max-width: 280px; font-family: system-ui, sans-serif;">
+          ${exp.imageUrl ? `
+            <img src="${exp.imageUrl}" alt="${exp.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px 8px 0 0; margin: -8px -8px 8px -8px; width: calc(100% + 16px);" />
+          ` : ''}
+          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1a1a1a;">${exp.name}</h3>
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; line-height: 1.4;">
+            ${exp.shortDescription || exp.description?.substring(0, 100) + '...' || 'Experiencia de turismo comunitario'}
+          </p>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="
+              background-color: ${categoryColor}20;
+              color: ${categoryColor};
+              padding: 2px 8px;
+              border-radius: 12px;
+              font-size: 11px;
+              font-weight: 500;
+            ">
+              ${categories.find(c => c.value === exp.category)?.label || 'Ecoturismo'}
+            </span>
+            <span style="font-size: 12px; color: #888;">📍 ${exp.state}</span>
+          </div>
+          <a href="/experiencia/${exp.id}" style="
+            display: inline-block;
+            background-color: #166534;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 4px;
+          ">Ver detalles →</a>
+        </div>
+      `;
+
+      marker.addListener("click", () => {
+        if (infoWindowRef.current) {
+          infoWindowRef.current.setContent(infoContent);
+          infoWindowRef.current.open(map, marker);
+          setSelectedExperience(exp.id);
+        }
+      });
+
+      // Efecto hover
+      markerElement.addEventListener("mouseenter", () => {
+        markerElement.style.transform = "scale(1.1)";
+      });
+      markerElement.addEventListener("mouseleave", () => {
+        markerElement.style.transform = "scale(1)";
+      });
+
+      markersRef.current.push(marker);
+    });
+
+    // Ajustar bounds del mapa para mostrar todos los marcadores
+    if (experiencesWithCoords.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      experiencesWithCoords.forEach(exp => {
+        if (exp.latitude && exp.longitude) {
+          bounds.extend({ lat: Number(exp.latitude), lng: Number(exp.longitude) });
+        }
+      });
+      map.fitBounds(bounds);
+      
+      // Si solo hay un marcador, establecer un zoom razonable
+      if (experiencesWithCoords.length === 1) {
+        map.setZoom(10);
+      }
+    }
+  }, [experiencesWithCoords]);
+
+  // Callback cuando el mapa está listo
+  const handleMapReady = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    createMarkers(map);
+  }, [createMarkers]);
+
+  // Actualizar marcadores cuando cambian las experiencias filtradas
+  useMemo(() => {
+    if (mapRef.current && viewMode === "map") {
+      createMarkers(mapRef.current);
+    }
+  }, [filteredExperiences, viewMode, createMarkers]);
+
+  // Función para centrar el mapa en una experiencia
+  const focusOnExperience = (exp: typeof filteredExperiences[0]) => {
+    if (mapRef.current && exp.latitude && exp.longitude) {
+      mapRef.current.panTo({ lat: Number(exp.latitude), lng: Number(exp.longitude) });
+      mapRef.current.setZoom(12);
+      setSelectedExperience(exp.id);
+      
+      // Abrir InfoWindow del marcador
+      const marker = markersRef.current.find(m => m.title === exp.name);
+      if (marker && infoWindowRef.current) {
+        const categoryColor = categoryColors[exp.category || "ecoturismo"] || "#166534";
+        const infoContent = `
+          <div style="max-width: 280px; font-family: system-ui, sans-serif;">
+            ${exp.imageUrl ? `
+              <img src="${exp.imageUrl}" alt="${exp.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px 8px 0 0; margin: -8px -8px 8px -8px; width: calc(100% + 16px);" />
+            ` : ''}
+            <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1a1a1a;">${exp.name}</h3>
+            <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; line-height: 1.4;">
+              ${exp.shortDescription || exp.description?.substring(0, 100) + '...' || 'Experiencia de turismo comunitario'}
+            </p>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="
+                background-color: ${categoryColor}20;
+                color: ${categoryColor};
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 500;
+              ">
+                ${categories.find(c => c.value === exp.category)?.label || 'Ecoturismo'}
+              </span>
+              <span style="font-size: 12px; color: #888;">📍 ${exp.state}</span>
+            </div>
+            <a href="/experiencia/${exp.id}" style="
+              display: inline-block;
+              background-color: #166534;
+              color: white;
+              padding: 6px 16px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-size: 13px;
+              font-weight: 500;
+              margin-top: 4px;
+            ">Ver detalles →</a>
+          </div>
+        `;
+        infoWindowRef.current.setContent(infoContent);
+        infoWindowRef.current.open(mapRef.current, marker);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -167,10 +379,20 @@ export default function Geoportal() {
               )}
               <div className="flex border rounded-lg">
                 <Button
-                  variant={viewMode === "grid" ? "secondary" : "ghost"}
+                  variant={viewMode === "map" ? "secondary" : "ghost"}
                   size="icon"
                   className="rounded-r-none"
+                  onClick={() => setViewMode("map")}
+                  title="Vista de mapa"
+                >
+                  <MapIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="rounded-none border-x"
                   onClick={() => setViewMode("grid")}
+                  title="Vista de cuadrícula"
                 >
                   <Grid3X3 className="h-4 w-4" />
                 </Button>
@@ -179,6 +401,7 @@ export default function Geoportal() {
                   size="icon"
                   className="rounded-l-none"
                   onClick={() => setViewMode("list")}
+                  title="Vista de lista"
                 >
                   <List className="h-4 w-4" />
                 </Button>
@@ -224,6 +447,11 @@ export default function Geoportal() {
                 <>
                   <span className="font-medium text-foreground">{filteredExperiences.length}</span>{" "}
                   experiencias encontradas
+                  {viewMode === "map" && experiencesWithCoords.length < filteredExperiences.length && (
+                    <span className="text-sm ml-2">
+                      ({experiencesWithCoords.length} con ubicación en mapa)
+                    </span>
+                  )}
                 </>
               )}
             </p>
@@ -258,6 +486,71 @@ export default function Geoportal() {
               <Button variant="outline" onClick={clearFilters}>
                 Limpiar filtros
               </Button>
+            </div>
+          )}
+
+          {/* Map View */}
+          {!isLoading && filteredExperiences.length > 0 && viewMode === "map" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Mapa */}
+              <div className="lg:col-span-2 rounded-xl overflow-hidden border shadow-sm">
+                <MapView
+                  className="h-[500px] lg:h-[600px]"
+                  initialCenter={{ lat: 23.6345, lng: -102.5528 }} // Centro de México
+                  initialZoom={5}
+                  onMapReady={handleMapReady}
+                />
+              </div>
+              
+              {/* Lista lateral */}
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                <h3 className="font-semibold text-foreground sticky top-0 bg-background py-2">
+                  Experiencias ({filteredExperiences.length})
+                </h3>
+                {filteredExperiences.map((exp) => {
+                  const CategoryIcon = categoryIcons[exp.category || "ecoturismo"] || Mountain;
+                  const hasCoords = exp.latitude && exp.longitude;
+                  return (
+                    <Card 
+                      key={exp.id} 
+                      className={`overflow-hidden cursor-pointer transition-all ${
+                        selectedExperience === exp.id 
+                          ? 'ring-2 ring-primary shadow-md' 
+                          : 'hover:shadow-md'
+                      } ${!hasCoords ? 'opacity-60' : ''}`}
+                      onClick={() => hasCoords ? focusOnExperience(exp) : null}
+                    >
+                      <div className="flex">
+                        <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 relative overflow-hidden flex-shrink-0">
+                          {exp.imageUrl ? (
+                            <img
+                              src={exp.imageUrl}
+                              alt={exp.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <CategoryIcon className="h-6 w-6 text-primary/40" />
+                            </div>
+                          )}
+                        </div>
+                        <CardContent className="p-3 flex-1">
+                          <h4 className="font-medium text-sm text-foreground line-clamp-1 mb-1">
+                            {exp.name}
+                          </h4>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            {exp.state}
+                            {!hasCoords && (
+                              <span className="text-amber-600">(Sin ubicación)</span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
           )}
 

@@ -56,3 +56,11 @@
 - [x] Contacto - Formulario y preguntas frecuentes
 - [x] Acerca - Información del proyecto
 - [x] Detalle de Experiencia - Vista individual
+
+## Mejoras Adicionales
+
+- [x] Integrar mapa interactivo de Google Maps en el geoportal
+- [x] Mostrar marcadores para cada experiencia turística
+- [x] Popup con información al hacer clic en marcadores
+- [x] Lista lateral de experiencias sincronizada con el mapa
+- [x] Vista de mapa como opción por defecto
