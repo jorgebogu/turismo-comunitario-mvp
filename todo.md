@@ -95,3 +95,4 @@
 - [x] Distribución visual de calificaciones (barras)
 - [x] Botón "Marcar como útil" en reseñas
 - [x] Pruebas unitarias para el sistema de reseñas
+- [x] Error de accesibilidad: DialogContent sin DialogTitle en Geoportal (corregido en command.tsx)
