@@ -1,0 +1,20 @@
+CREATE TABLE `reservations` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`experienceId` int NOT NULL,
+	`userId` int NOT NULL,
+	`visitorName` varchar(255) NOT NULL,
+	`visitorEmail` varchar(320) NOT NULL,
+	`visitorPhone` varchar(20),
+	`visitDate` timestamp NOT NULL,
+	`visitEndDate` timestamp,
+	`numberOfAdults` int NOT NULL DEFAULT 1,
+	`numberOfChildren` int DEFAULT 0,
+	`message` text,
+	`specialRequirements` text,
+	`status` enum('pendiente','confirmada','cancelada','completada','rechazada') NOT NULL DEFAULT 'pendiente',
+	`communityResponse` text,
+	`respondedAt` timestamp,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `reservations_id` PRIMARY KEY(`id`)
+);

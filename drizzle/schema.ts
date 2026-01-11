@@ -223,3 +223,47 @@ export const certificates = mysqlTable("certificates", {
 
 export type Certificate = typeof certificates.$inferSelect;
 export type InsertCertificate = typeof certificates.$inferInsert;
+
+/**
+ * Reservaciones / Solicitudes de Visita
+ */
+export const reservations = mysqlTable("reservations", {
+  id: int("id").autoincrement().primaryKey(),
+  experienceId: int("experienceId").notNull(),
+  userId: int("userId").notNull(),
+  
+  // Información del visitante
+  visitorName: varchar("visitorName", { length: 255 }).notNull(),
+  visitorEmail: varchar("visitorEmail", { length: 320 }).notNull(),
+  visitorPhone: varchar("visitorPhone", { length: 20 }),
+  
+  // Detalles de la reserva
+  visitDate: timestamp("visitDate").notNull(),
+  visitEndDate: timestamp("visitEndDate"),
+  numberOfAdults: int("numberOfAdults").default(1).notNull(),
+  numberOfChildren: int("numberOfChildren").default(0),
+  
+  // Mensaje y preferencias
+  message: text("message"),
+  specialRequirements: text("specialRequirements"),
+  
+  // Estado de la reservación
+  status: mysqlEnum("status", [
+    "pendiente",
+    "confirmada", 
+    "cancelada",
+    "completada",
+    "rechazada"
+  ]).default("pendiente").notNull(),
+  
+  // Respuesta de la comunidad
+  communityResponse: text("communityResponse"),
+  respondedAt: timestamp("respondedAt"),
+  
+  // Metadatos
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Reservation = typeof reservations.$inferSelect;
+export type InsertReservation = typeof reservations.$inferInsert;

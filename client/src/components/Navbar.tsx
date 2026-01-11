@@ -93,6 +93,11 @@ export default function Navbar() {
                     Mis Cursos
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/mis-reservaciones" className="w-full cursor-pointer">
+                    Mis Reservaciones
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>
                   Cerrar Sesión
                 </DropdownMenuItem>

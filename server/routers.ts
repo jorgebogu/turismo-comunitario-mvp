@@ -469,6 +469,79 @@ export const appRouter = router({
       }),
   }),
 
+  // Reservaciones
+  reservations: router({
+    // Crear una solicitud de reserva
+    create: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        visitorName: z.string().min(2),
+        visitorEmail: z.string().email(),
+        visitorPhone: z.string().optional(),
+        visitDate: z.string(), // ISO date string
+        visitEndDate: z.string().optional(),
+        numberOfAdults: z.number().min(1).default(1),
+        numberOfChildren: z.number().min(0).default(0),
+        message: z.string().optional(),
+        specialRequirements: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await db.createReservation({
+          experienceId: input.experienceId,
+          userId: ctx.user.id,
+          visitorName: input.visitorName,
+          visitorEmail: input.visitorEmail,
+          visitorPhone: input.visitorPhone || null,
+          visitDate: new Date(input.visitDate),
+          visitEndDate: input.visitEndDate ? new Date(input.visitEndDate) : null,
+          numberOfAdults: input.numberOfAdults,
+          numberOfChildren: input.numberOfChildren || 0,
+          message: input.message || null,
+          specialRequirements: input.specialRequirements || null,
+          status: "pendiente",
+        });
+        return { success: true, message: "Solicitud de reserva enviada exitosamente" };
+      }),
+
+    // Obtener reservaciones del usuario
+    myReservations: protectedProcedure.query(async ({ ctx }) => {
+      const reservations = await db.getReservationsByUser(ctx.user.id);
+      // Enrich with experience data
+      const enriched = await Promise.all(
+        reservations.map(async (r) => {
+          const experience = await db.getExperienceById(r.experienceId);
+          return { ...r, experience };
+        })
+      );
+      return enriched;
+    }),
+
+    // Obtener una reservación por ID
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const reservation = await db.getReservationById(input.id);
+        if (!reservation || reservation.userId !== ctx.user.id) {
+          throw new Error("Reservación no encontrada");
+        }
+        const experience = await db.getExperienceById(reservation.experienceId);
+        return { ...reservation, experience };
+      }),
+
+    // Cancelar reservación
+    cancel: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.cancelReservation(input.id, ctx.user.id);
+        return { success: true, message: "Reservación cancelada" };
+      }),
+
+    // Obtener estadísticas del usuario
+    myStats: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getReservationStats(ctx.user.id);
+    }),
+  }),
+
   // Estadísticas generales
   stats: router({
     get: publicProcedure.query(async () => {

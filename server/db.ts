@@ -9,7 +9,8 @@ import {
   contactRequests, InsertContactRequest,
   courses, InsertCourse,
   reviews, InsertReview, Review,
-  certificates, InsertCertificate, Certificate
+  certificates, InsertCertificate, Certificate,
+  reservations, InsertReservation, Reservation
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -456,6 +457,112 @@ export async function incrementReviewHelpful(reviewId: number) {
     .update(reviews)
     .set({ helpfulCount: sql`${reviews.helpfulCount} + 1` })
     .where(eq(reviews.id, reviewId));
+}
+
+// ============ RESERVATIONS FUNCTIONS ============
+export async function createReservation(data: InsertReservation) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.insert(reservations).values(data);
+}
+
+export async function getReservationsByUser(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(reservations)
+    .where(eq(reservations.userId, userId))
+    .orderBy(desc(reservations.createdAt));
+}
+
+export async function getReservationsByExperience(experienceId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(reservations)
+    .where(eq(reservations.experienceId, experienceId))
+    .orderBy(desc(reservations.createdAt));
+}
+
+export async function getReservationById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(reservations)
+    .where(eq(reservations.id, id))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateReservationStatus(
+  id: number, 
+  status: "pendiente" | "confirmada" | "cancelada" | "completada" | "rechazada",
+  communityResponse?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = { status };
+  if (communityResponse !== undefined) {
+    updateData.communityResponse = communityResponse;
+    updateData.respondedAt = new Date();
+  }
+
+  return await db
+    .update(reservations)
+    .set(updateData)
+    .where(eq(reservations.id, id));
+}
+
+export async function cancelReservation(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Only allow cancellation of own reservations that are pending
+  return await db
+    .update(reservations)
+    .set({ status: "cancelada" })
+    .where(and(
+      eq(reservations.id, id),
+      eq(reservations.userId, userId),
+      eq(reservations.status, "pendiente")
+    ));
+}
+
+export async function getReservationStats(userId?: number) {
+  const db = await getDb();
+  if (!db) return { total: 0, pendientes: 0, confirmadas: 0, completadas: 0, canceladas: 0 };
+
+  let query = db.select({
+    status: reservations.status,
+    count: sql<number>`count(*)`
+  }).from(reservations);
+
+  if (userId) {
+    query = query.where(eq(reservations.userId, userId)) as any;
+  }
+
+  const results = await query.groupBy(reservations.status);
+
+  const stats = { total: 0, pendientes: 0, confirmadas: 0, completadas: 0, canceladas: 0 };
+  results.forEach((r: any) => {
+    const count = Number(r.count);
+    stats.total += count;
+    if (r.status === 'pendiente') stats.pendientes = count;
+    if (r.status === 'confirmada') stats.confirmadas = count;
+    if (r.status === 'completada') stats.completadas = count;
+    if (r.status === 'cancelada' || r.status === 'rechazada') stats.canceladas += count;
+  });
+
+  return stats;
 }
 
 // ============ STATS FUNCTIONS ============

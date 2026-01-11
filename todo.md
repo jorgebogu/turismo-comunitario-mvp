@@ -135,3 +135,16 @@
 - [x] Agregar 10 nuevas experiencias turísticas comunitarias
 - [x] Incluir variedad de estados y categorías (Chiapas, Oaxaca, Yucatán, Querétaro, Quintana Roo, Chihuahua, Nayarit, Michoacán)
 - [x] Total de experiencias en el geoportal: 18
+
+## Sistema de Reservaciones
+
+- [x] Crear tabla de reservaciones en la base de datos
+- [x] Implementar API para crear solicitudes de reserva
+- [x] Implementar API para ver reservaciones del usuario
+- [x] Implementar API para cancelar reservaciones
+- [x] Crear formulario de reservación en página de experiencia
+- [x] Crear página "Mis Reservaciones" para usuarios
+- [x] Agregar estados de reservación (pendiente, confirmada, cancelada, completada, rechazada)
+- [x] Pruebas unitarias para el sistema de reservaciones (13 tests)
+- [x] Enlace a "Mis Reservaciones" en el menú de usuario
+- [x] Estadísticas de reservaciones del usuario

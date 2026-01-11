@@ -1,5 +1,7 @@
-import { Link, useParams } from "wouter";
+import { useState } from "react";
+import { useParams, Link } from "wouter";
 import Navbar from "@/components/Navbar";
+import ReservationForm from "@/components/ReservationForm";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -119,6 +121,7 @@ export default function ExperienceDetail() {
 
   const CategoryIcon = categoryIcons[experience.category || "ecoturismo"] || Mountain;
   const categoryInfo = categories.find(c => c.value === experience.category);
+  const [showReservationForm, setShowReservationForm] = useState(false);
 
   const filteredRelated = relatedExperiences?.filter(e => e.id !== experience.id).slice(0, 3);
 
@@ -369,13 +372,30 @@ export default function ExperienceDetail() {
                     )}
                   </div>
 
-                  <Button className="w-full" asChild>
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary/90" 
+                    onClick={() => setShowReservationForm(true)}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Solicitar Reservación
+                  </Button>
+                  <Button variant="outline" className="w-full" asChild>
                     <Link href="/contacto">
                       Solicitar Información
                     </Link>
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Reservation Form Modal */}
+              <ReservationForm
+                experienceId={experienceId}
+                experienceName={experience.name}
+                communityEmail={experience.contactEmail}
+                communityPhone={experience.contactPhone}
+                isOpen={showReservationForm}
+                onClose={() => setShowReservationForm(false)}
+              />
             </div>
           </div>
         </div>
