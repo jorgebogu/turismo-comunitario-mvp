@@ -267,3 +267,80 @@ export const reservations = mysqlTable("reservations", {
 
 export type Reservation = typeof reservations.$inferSelect;
 export type InsertReservation = typeof reservations.$inferInsert;
+
+/**
+ * Disponibilidad de Experiencias
+ * Define los días y horarios disponibles para cada experiencia
+ */
+export const availability = mysqlTable("availability", {
+  id: int("id").autoincrement().primaryKey(),
+  experienceId: int("experienceId").notNull(),
+  
+  // Fecha específica de disponibilidad
+  date: timestamp("date").notNull(),
+  
+  // Capacidad para ese día
+  maxCapacity: int("maxCapacity").default(20).notNull(),
+  currentBookings: int("currentBookings").default(0).notNull(),
+  
+  // Estado del día
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  
+  // Precio especial para ese día (opcional)
+  specialPrice: decimal("specialPrice", { precision: 10, scale: 2 }),
+  
+  // Notas adicionales
+  notes: text("notes"),
+  
+  // Metadatos
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Availability = typeof availability.$inferSelect;
+export type InsertAvailability = typeof availability.$inferInsert;
+
+/**
+ * Configuración de Disponibilidad por Defecto
+ * Define los días de la semana disponibles por defecto para cada experiencia
+ */
+export const availabilityConfig = mysqlTable("availability_config", {
+  id: int("id").autoincrement().primaryKey(),
+  experienceId: int("experienceId").notNull(),
+  
+  // Días de la semana disponibles (0=Domingo, 1=Lunes, ..., 6=Sábado)
+  dayOfWeek: int("dayOfWeek").notNull(),
+  
+  // Capacidad por defecto para ese día
+  defaultCapacity: int("defaultCapacity").default(20).notNull(),
+  
+  // Si está habilitado ese día
+  isEnabled: boolean("isEnabled").default(true).notNull(),
+  
+  // Metadatos
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AvailabilityConfig = typeof availabilityConfig.$inferSelect;
+export type InsertAvailabilityConfig = typeof availabilityConfig.$inferInsert;
+
+/**
+ * Fechas Bloqueadas
+ * Días específicos que no están disponibles (feriados, mantenimiento, etc.)
+ */
+export const blockedDates = mysqlTable("blocked_dates", {
+  id: int("id").autoincrement().primaryKey(),
+  experienceId: int("experienceId").notNull(),
+  
+  // Fecha bloqueada
+  date: timestamp("date").notNull(),
+  
+  // Razón del bloqueo
+  reason: varchar("reason", { length: 255 }),
+  
+  // Metadatos
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BlockedDate = typeof blockedDates.$inferSelect;
+export type InsertBlockedDate = typeof blockedDates.$inferInsert;

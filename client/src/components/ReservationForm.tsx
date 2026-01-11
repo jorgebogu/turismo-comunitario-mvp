@@ -1,18 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { CalendarIcon, Users, Mail, Phone, MessageSquare, Loader2, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { Users, Mail, Phone, MessageSquare, Loader2, CheckCircle2, AlertTriangle, Calendar } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { AvailabilityCalendar } from "./AvailabilityCalendar";
 
 interface ReservationFormProps {
   experienceId: number;
@@ -32,8 +30,9 @@ export default function ReservationForm({
   onClose,
 }: ReservationFormProps) {
   const { user, isAuthenticated } = useAuth();
-  const [visitDate, setVisitDate] = useState<Date | undefined>();
-  const [visitEndDate, setVisitEndDate] = useState<Date | undefined>();
+  const [selectedDate, setSelectedDate] = useState<string | undefined>();
+  const [dateAvailable, setDateAvailable] = useState(true);
+  const [remainingCapacity, setRemainingCapacity] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -46,6 +45,31 @@ export default function ReservationForm({
     specialRequirements: "",
   });
 
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        visitorName: user.name || prev.visitorName,
+        visitorEmail: user.email || prev.visitorEmail,
+      }));
+    }
+  }, [user]);
+
+  const totalPeople = formData.numberOfAdults + formData.numberOfChildren;
+
+  // Check availability when date or capacity changes
+  const { data: availabilityCheck } = trpc.availability.checkDate.useQuery(
+    {
+      experienceId,
+      date: selectedDate || "",
+      requestedCapacity: totalPeople,
+    },
+    {
+      enabled: !!selectedDate && totalPeople > 0,
+    }
+  );
+
   const createReservation = trpc.reservations.create.useMutation({
     onSuccess: () => {
       setShowSuccess(true);
@@ -55,11 +79,22 @@ export default function ReservationForm({
     },
   });
 
+  const handleDateSelect = (date: string, available: boolean, capacity: number) => {
+    setSelectedDate(date);
+    setDateAvailable(available);
+    setRemainingCapacity(capacity);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!visitDate) {
+    if (!selectedDate) {
       toast.error("Por favor selecciona una fecha de visita");
+      return;
+    }
+
+    if (availabilityCheck && !availabilityCheck.available) {
+      toast.error(availabilityCheck.reason || "La fecha seleccionada no está disponible");
       return;
     }
 
@@ -68,8 +103,7 @@ export default function ReservationForm({
       visitorName: formData.visitorName,
       visitorEmail: formData.visitorEmail,
       visitorPhone: formData.visitorPhone || undefined,
-      visitDate: visitDate.toISOString(),
-      visitEndDate: visitEndDate?.toISOString(),
+      visitDate: new Date(selectedDate).toISOString(),
       numberOfAdults: formData.numberOfAdults,
       numberOfChildren: formData.numberOfChildren,
       message: formData.message || undefined,
@@ -88,8 +122,9 @@ export default function ReservationForm({
       message: "",
       specialRequirements: "",
     });
-    setVisitDate(undefined);
-    setVisitEndDate(undefined);
+    setSelectedDate(undefined);
+    setDateAvailable(true);
+    setRemainingCapacity(0);
     onClose();
   };
 
@@ -132,6 +167,17 @@ export default function ReservationForm({
             </DialogHeader>
             <div className="text-sm text-muted-foreground space-y-2">
               <p>La comunidad recibirá tu solicitud y te contactará pronto para confirmar los detalles.</p>
+              {selectedDate && (
+                <p className="flex items-center justify-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Fecha solicitada: <strong>{new Date(selectedDate).toLocaleDateString("es-MX", { 
+                    weekday: "long", 
+                    day: "numeric", 
+                    month: "long", 
+                    year: "numeric" 
+                  })}</strong>
+                </p>
+              )}
               {communityEmail && (
                 <p>También puedes contactarlos directamente: <strong>{communityEmail}</strong></p>
               )}
@@ -147,7 +193,7 @@ export default function ReservationForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Solicitar Reservación</DialogTitle>
           <DialogDescription>
@@ -155,12 +201,90 @@ export default function ReservationForm({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Calendario de disponibilidad */}
+          <div className="space-y-2">
+            <Label className="text-base font-medium">1. Selecciona una fecha disponible *</Label>
+            <AvailabilityCalendar
+              experienceId={experienceId}
+              onDateSelect={handleDateSelect}
+              selectedDate={selectedDate}
+              requestedCapacity={totalPeople}
+            />
+            
+            {selectedDate && (
+              <div className="mt-2">
+                {availabilityCheck?.available ? (
+                  <Alert className="bg-green-50 border-green-200">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-700">
+                      Fecha disponible: {new Date(selectedDate).toLocaleDateString("es-MX", { 
+                        weekday: "long", 
+                        day: "numeric", 
+                        month: "long" 
+                      })}
+                      {availabilityCheck.remainingCapacity !== undefined && (
+                        <span className="ml-2">
+                          ({availabilityCheck.remainingCapacity} lugares disponibles)
+                        </span>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert variant="destructive" className="bg-red-50 border-red-200">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      {availabilityCheck?.reason || "Esta fecha no está disponible"}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Número de personas */}
+          <div className="space-y-2">
+            <Label className="text-base font-medium">2. ¿Cuántas personas asistirán? *</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="numberOfAdults" className="text-sm">Adultos</Label>
+                <div className="relative">
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="numberOfAdults"
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={formData.numberOfAdults}
+                    onChange={(e) => setFormData({ ...formData, numberOfAdults: parseInt(e.target.value) || 1 })}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="numberOfChildren" className="text-sm">Niños</Label>
+                <Input
+                  id="numberOfChildren"
+                  type="number"
+                  min={0}
+                  max={50}
+                  value={formData.numberOfChildren}
+                  onChange={(e) => setFormData({ ...formData, numberOfChildren: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Total: {totalPeople} {totalPeople === 1 ? "persona" : "personas"}
+            </p>
+          </div>
+
           {/* Información del visitante */}
           <div className="space-y-4">
+            <Label className="text-base font-medium">3. Información de contacto *</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="visitorName">Nombre completo *</Label>
+                <Label htmlFor="visitorName" className="text-sm">Nombre completo</Label>
                 <Input
                   id="visitorName"
                   value={formData.visitorName}
@@ -170,7 +294,7 @@ export default function ReservationForm({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="visitorEmail">Correo electrónico *</Label>
+                <Label htmlFor="visitorEmail" className="text-sm">Correo electrónico</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -187,7 +311,7 @@ export default function ReservationForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="visitorPhone">Teléfono (opcional)</Label>
+              <Label htmlFor="visitorPhone" className="text-sm">Teléfono (opcional)</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -202,91 +326,9 @@ export default function ReservationForm({
             </div>
           </div>
 
-          {/* Fechas */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Fecha de visita *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {visitDate ? format(visitDate, "PPP", { locale: es }) : "Seleccionar fecha"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={visitDate}
-                    onSelect={setVisitDate}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Fecha de regreso (opcional)</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {visitEndDate ? format(visitEndDate, "PPP", { locale: es }) : "Seleccionar fecha"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={visitEndDate}
-                    onSelect={setVisitEndDate}
-                    disabled={(date) => date < (visitDate || new Date())}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {/* Número de personas */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="numberOfAdults">Adultos *</Label>
-              <div className="relative">
-                <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="numberOfAdults"
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={formData.numberOfAdults}
-                  onChange={(e) => setFormData({ ...formData, numberOfAdults: parseInt(e.target.value) || 1 })}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="numberOfChildren">Niños</Label>
-              <Input
-                id="numberOfChildren"
-                type="number"
-                min={0}
-                max={50}
-                value={formData.numberOfChildren}
-                onChange={(e) => setFormData({ ...formData, numberOfChildren: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-          </div>
-
           {/* Mensaje */}
           <div className="space-y-2">
-            <Label htmlFor="message">Mensaje para la comunidad</Label>
+            <Label className="text-base font-medium">4. Mensaje adicional (opcional)</Label>
             <div className="relative">
               <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Textarea
@@ -301,7 +343,7 @@ export default function ReservationForm({
 
           {/* Requerimientos especiales */}
           <div className="space-y-2">
-            <Label htmlFor="specialRequirements">Requerimientos especiales (opcional)</Label>
+            <Label htmlFor="specialRequirements" className="text-sm">Requerimientos especiales (opcional)</Label>
             <Textarea
               id="specialRequirements"
               value={formData.specialRequirements}
@@ -317,7 +359,7 @@ export default function ReservationForm({
             </Button>
             <Button 
               type="submit" 
-              disabled={createReservation.isPending}
+              disabled={createReservation.isPending || !selectedDate || (availabilityCheck && !availabilityCheck.available)}
               className="bg-primary hover:bg-primary/90"
             >
               {createReservation.isPending ? (

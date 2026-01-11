@@ -10,7 +10,10 @@ import {
   courses, InsertCourse,
   reviews, InsertReview, Review,
   certificates, InsertCertificate, Certificate,
-  reservations, InsertReservation, Reservation
+  reservations, InsertReservation, Reservation,
+  availability, InsertAvailability, Availability,
+  availabilityConfig, InsertAvailabilityConfig, AvailabilityConfig,
+  blockedDates, InsertBlockedDate, BlockedDate
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -840,4 +843,406 @@ export async function invalidateCertificate(certificateId: number) {
     .update(certificates)
     .set({ isValid: false })
     .where(eq(certificates.id, certificateId));
+}
+
+
+// ============ AVAILABILITY FUNCTIONS ============
+import { gte, lte, between } from "drizzle-orm";
+
+export async function getAvailabilityForExperience(experienceId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(availability)
+    .where(and(
+      eq(availability.experienceId, experienceId),
+      gte(availability.date, startDate),
+      lte(availability.date, endDate)
+    ))
+    .orderBy(availability.date);
+}
+
+export async function getAvailabilityForDate(experienceId: number, date: Date) {
+  const db = await getDb();
+  if (!db) return null;
+
+  // Normalize date to start of day
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const result = await db
+    .select()
+    .from(availability)
+    .where(and(
+      eq(availability.experienceId, experienceId),
+      gte(availability.date, startOfDay),
+      lte(availability.date, endOfDay)
+    ))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function createOrUpdateAvailability(data: InsertAvailability) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if availability exists for this date
+  const existing = await getAvailabilityForDate(data.experienceId, data.date as Date);
+
+  if (existing) {
+    // Update existing
+    await db
+      .update(availability)
+      .set({
+        maxCapacity: data.maxCapacity,
+        isAvailable: data.isAvailable,
+        specialPrice: data.specialPrice,
+        notes: data.notes,
+      })
+      .where(eq(availability.id, existing.id));
+    return { updated: true, id: existing.id };
+  } else {
+    // Create new
+    const result = await db.insert(availability).values(data);
+    return { updated: false, insertId: result[0].insertId };
+  }
+}
+
+export async function incrementBookings(experienceId: number, date: Date, count: number = 1) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const avail = await getAvailabilityForDate(experienceId, date);
+  
+  if (avail) {
+    await db
+      .update(availability)
+      .set({ currentBookings: sql`${availability.currentBookings} + ${count}` })
+      .where(eq(availability.id, avail.id));
+  }
+}
+
+export async function decrementBookings(experienceId: number, date: Date, count: number = 1) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const avail = await getAvailabilityForDate(experienceId, date);
+  
+  if (avail) {
+    await db
+      .update(availability)
+      .set({ currentBookings: sql`GREATEST(0, ${availability.currentBookings} - ${count})` })
+      .where(eq(availability.id, avail.id));
+  }
+}
+
+export async function checkAvailability(experienceId: number, date: Date, requestedCapacity: number): Promise<{
+  available: boolean;
+  reason?: string;
+  remainingCapacity?: number;
+}> {
+  const db = await getDb();
+  if (!db) return { available: false, reason: "Database not available" };
+
+  // Check if date is blocked
+  const blocked = await isDateBlocked(experienceId, date);
+  if (blocked) {
+    return { available: false, reason: "Esta fecha no está disponible" };
+  }
+
+  // Check availability record
+  const avail = await getAvailabilityForDate(experienceId, date);
+  
+  if (!avail) {
+    // No specific availability set, check default config
+    const dayOfWeek = date.getDay();
+    const config = await getAvailabilityConfig(experienceId, dayOfWeek);
+    
+    if (!config || Array.isArray(config) || !config.isEnabled) {
+      return { available: false, reason: "No hay disponibilidad para este día de la semana" };
+    }
+    
+    // Count existing reservations for this date
+    const existingReservations = await countReservationsForDate(experienceId, date);
+    const remainingCapacity = (config as AvailabilityConfig).defaultCapacity - existingReservations;
+    
+    if (remainingCapacity < requestedCapacity) {
+      return { 
+        available: false, 
+        reason: `Solo quedan ${remainingCapacity} lugares disponibles`,
+        remainingCapacity 
+      };
+    }
+    
+    return { available: true, remainingCapacity };
+  }
+
+  if (!avail.isAvailable) {
+    return { available: false, reason: "Esta fecha no está disponible" };
+  }
+
+  const remainingCapacity = avail.maxCapacity - avail.currentBookings;
+  
+  if (remainingCapacity < requestedCapacity) {
+    return { 
+      available: false, 
+      reason: `Solo quedan ${remainingCapacity} lugares disponibles`,
+      remainingCapacity 
+    };
+  }
+
+  return { available: true, remainingCapacity };
+}
+
+export async function countReservationsForDate(experienceId: number, date: Date): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const [result] = await db
+    .select({
+      total: sql<number>`COALESCE(SUM(${reservations.numberOfAdults} + COALESCE(${reservations.numberOfChildren}, 0)), 0)`
+    })
+    .from(reservations)
+    .where(and(
+      eq(reservations.experienceId, experienceId),
+      gte(reservations.visitDate, startOfDay),
+      lte(reservations.visitDate, endOfDay),
+      sql`${reservations.status} IN ('pendiente', 'confirmada')`
+    ));
+
+  return Number(result?.total || 0);
+}
+
+// ============ AVAILABILITY CONFIG FUNCTIONS ============
+export async function getAvailabilityConfig(experienceId: number, dayOfWeek?: number) {
+  const db = await getDb();
+  if (!db) return dayOfWeek !== undefined ? null : [];
+
+  if (dayOfWeek !== undefined) {
+    const result = await db
+      .select()
+      .from(availabilityConfig)
+      .where(and(
+        eq(availabilityConfig.experienceId, experienceId),
+        eq(availabilityConfig.dayOfWeek, dayOfWeek)
+      ))
+      .limit(1);
+    return result.length > 0 ? result[0] : null;
+  }
+
+  return await db
+    .select()
+    .from(availabilityConfig)
+    .where(eq(availabilityConfig.experienceId, experienceId))
+    .orderBy(availabilityConfig.dayOfWeek);
+}
+
+export async function setAvailabilityConfig(data: InsertAvailabilityConfig) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if config exists for this day
+  const existing = await getAvailabilityConfig(data.experienceId, data.dayOfWeek);
+
+  if (existing && typeof existing === 'object' && 'id' in existing) {
+    await db
+      .update(availabilityConfig)
+      .set({
+        defaultCapacity: data.defaultCapacity,
+        isEnabled: data.isEnabled,
+      })
+      .where(eq(availabilityConfig.id, existing.id));
+    return { updated: true };
+  } else {
+    await db.insert(availabilityConfig).values(data);
+    return { updated: false };
+  }
+}
+
+export async function initializeDefaultAvailability(experienceId: number, defaultCapacity: number = 20) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Create default config for all days of the week
+  for (let day = 0; day <= 6; day++) {
+    await setAvailabilityConfig({
+      experienceId,
+      dayOfWeek: day,
+      defaultCapacity,
+      isEnabled: true,
+    });
+  }
+}
+
+// ============ BLOCKED DATES FUNCTIONS ============
+export async function isDateBlocked(experienceId: number, date: Date): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const result = await db
+    .select()
+    .from(blockedDates)
+    .where(and(
+      eq(blockedDates.experienceId, experienceId),
+      gte(blockedDates.date, startOfDay),
+      lte(blockedDates.date, endOfDay)
+    ))
+    .limit(1);
+
+  return result.length > 0;
+}
+
+export async function getBlockedDates(experienceId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(blockedDates)
+    .where(and(
+      eq(blockedDates.experienceId, experienceId),
+      gte(blockedDates.date, startDate),
+      lte(blockedDates.date, endDate)
+    ))
+    .orderBy(blockedDates.date);
+}
+
+export async function blockDate(data: InsertBlockedDate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if already blocked
+  const isBlocked = await isDateBlocked(data.experienceId, data.date as Date);
+  if (isBlocked) {
+    return { alreadyBlocked: true };
+  }
+
+  await db.insert(blockedDates).values(data);
+  return { alreadyBlocked: false };
+}
+
+export async function unblockDate(experienceId: number, date: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  await db
+    .delete(blockedDates)
+    .where(and(
+      eq(blockedDates.experienceId, experienceId),
+      gte(blockedDates.date, startOfDay),
+      lte(blockedDates.date, endOfDay)
+    ));
+}
+
+// ============ CALENDAR DATA FUNCTION ============
+export async function getCalendarData(experienceId: number, year: number, month: number) {
+  const db = await getDb();
+  if (!db) return { days: [], config: [] };
+
+  // Get start and end of month
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+  // Get availability records
+  const availabilityRecords = await getAvailabilityForExperience(experienceId, startDate, endDate);
+
+  // Get blocked dates
+  const blocked = await getBlockedDates(experienceId, startDate, endDate);
+
+  // Get default config
+  const config = await getAvailabilityConfig(experienceId);
+
+  // Get reservations count per day
+  const reservationCounts: Record<string, number> = {};
+  
+  // Iterate through each day of the month
+  const daysInMonth = endDate.getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month - 1, day);
+    const dateKey = date.toISOString().split('T')[0];
+    reservationCounts[dateKey] = await countReservationsForDate(experienceId, date);
+  }
+
+  // Build calendar days
+  const days = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month - 1, day);
+    const dateKey = date.toISOString().split('T')[0];
+    const dayOfWeek = date.getDay();
+
+    // Check if blocked
+    const isBlocked = blocked.some(b => {
+      const blockedDate = new Date(b.date);
+      return blockedDate.toISOString().split('T')[0] === dateKey;
+    });
+
+    // Get availability for this day
+    const availRecord = availabilityRecords.find(a => {
+      const availDate = new Date(a.date);
+      return availDate.toISOString().split('T')[0] === dateKey;
+    });
+
+    // Get default config for this day of week
+    const dayConfig = Array.isArray(config) 
+      ? config.find(c => c.dayOfWeek === dayOfWeek) 
+      : null;
+
+    let maxCapacity = dayConfig?.defaultCapacity || 20;
+    let isAvailable = dayConfig?.isEnabled ?? true;
+    let currentBookings = reservationCounts[dateKey] || 0;
+
+    if (availRecord) {
+      maxCapacity = availRecord.maxCapacity;
+      isAvailable = availRecord.isAvailable;
+      currentBookings = availRecord.currentBookings;
+    }
+
+    if (isBlocked) {
+      isAvailable = false;
+    }
+
+    // Check if date is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isPast = date < today;
+
+    days.push({
+      date: dateKey,
+      dayOfMonth: day,
+      dayOfWeek,
+      maxCapacity,
+      currentBookings,
+      remainingCapacity: Math.max(0, maxCapacity - currentBookings),
+      isAvailable: isAvailable && !isPast,
+      isBlocked,
+      isPast,
+      specialPrice: availRecord?.specialPrice ? Number(availRecord.specialPrice) : null,
+      notes: availRecord?.notes || null,
+    });
+  }
+
+  return { 
+    days, 
+    config: Array.isArray(config) ? config : [] 
+  };
 }

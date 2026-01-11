@@ -148,3 +148,16 @@
 - [x] Pruebas unitarias para el sistema de reservaciones (13 tests)
 - [x] Enlace a "Mis Reservaciones" en el menú de usuario
 - [x] Estadísticas de reservaciones del usuario
+
+## Calendario de Disponibilidad
+
+- [x] Crear tabla de disponibilidad en la base de datos
+- [x] Implementar API para definir días disponibles por experiencia
+- [x] Implementar API para consultar disponibilidad por fecha
+- [x] Crear componente de calendario visual con leyenda
+- [x] Mostrar fechas disponibles/no disponibles en el formulario de reservación
+- [x] Validar capacidad máxima por día antes de confirmar reservación
+- [x] Bloquear fechas pasadas y días no disponibles
+- [x] Pruebas unitarias para el sistema de disponibilidad (12 tests)
+- [x] Configuración de disponibilidad por día de la semana
+- [x] Integración del calendario en el formulario de reservación

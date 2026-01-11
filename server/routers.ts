@@ -542,6 +542,139 @@ export const appRouter = router({
     }),
   }),
 
+  // Disponibilidad / Calendario
+  availability: router({
+    // Obtener datos del calendario para un mes
+    getCalendar: publicProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        year: z.number(),
+        month: z.number().min(1).max(12),
+      }))
+      .query(async ({ input }) => {
+        return await db.getCalendarData(input.experienceId, input.year, input.month);
+      }),
+
+    // Verificar disponibilidad para una fecha específica
+    checkDate: publicProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        date: z.string(), // ISO date string
+        requestedCapacity: z.number().min(1).default(1),
+      }))
+      .query(async ({ input }) => {
+        return await db.checkAvailability(
+          input.experienceId, 
+          new Date(input.date), 
+          input.requestedCapacity
+        );
+      }),
+
+    // Obtener configuración de disponibilidad por defecto
+    getConfig: publicProcedure
+      .input(z.object({ experienceId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getAvailabilityConfig(input.experienceId);
+      }),
+
+    // Establecer configuración de disponibilidad (admin/comunidad)
+    setConfig: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        dayOfWeek: z.number().min(0).max(6),
+        defaultCapacity: z.number().min(1).default(20),
+        isEnabled: z.boolean().default(true),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // TODO: Verificar que el usuario es admin o dueño de la experiencia
+        await db.setAvailabilityConfig({
+          experienceId: input.experienceId,
+          dayOfWeek: input.dayOfWeek,
+          defaultCapacity: input.defaultCapacity,
+          isEnabled: input.isEnabled,
+        });
+        return { success: true, message: "Configuración actualizada" };
+      }),
+
+    // Inicializar disponibilidad por defecto para una experiencia
+    initializeDefault: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        defaultCapacity: z.number().min(1).default(20),
+      }))
+      .mutation(async ({ input }) => {
+        await db.initializeDefaultAvailability(input.experienceId, input.defaultCapacity);
+        return { success: true, message: "Disponibilidad inicializada" };
+      }),
+
+    // Bloquear una fecha
+    blockDate: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        date: z.string(), // ISO date string
+        reason: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await db.blockDate({
+          experienceId: input.experienceId,
+          date: new Date(input.date),
+          reason: input.reason || null,
+        });
+        if (result.alreadyBlocked) {
+          return { success: true, message: "Esta fecha ya estaba bloqueada" };
+        }
+        return { success: true, message: "Fecha bloqueada exitosamente" };
+      }),
+
+    // Desbloquear una fecha
+    unblockDate: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        date: z.string(), // ISO date string
+      }))
+      .mutation(async ({ input }) => {
+        await db.unblockDate(input.experienceId, new Date(input.date));
+        return { success: true, message: "Fecha desbloqueada" };
+      }),
+
+    // Obtener fechas bloqueadas
+    getBlockedDates: publicProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        startDate: z.string(),
+        endDate: z.string(),
+      }))
+      .query(async ({ input }) => {
+        return await db.getBlockedDates(
+          input.experienceId,
+          new Date(input.startDate),
+          new Date(input.endDate)
+        );
+      }),
+
+    // Establecer disponibilidad para una fecha específica
+    setDateAvailability: protectedProcedure
+      .input(z.object({
+        experienceId: z.number(),
+        date: z.string(),
+        maxCapacity: z.number().min(0),
+        isAvailable: z.boolean().default(true),
+        specialPrice: z.number().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createOrUpdateAvailability({
+          experienceId: input.experienceId,
+          date: new Date(input.date),
+          maxCapacity: input.maxCapacity,
+          isAvailable: input.isAvailable,
+          specialPrice: input.specialPrice?.toString() || null,
+          notes: input.notes || null,
+        });
+        return { success: true, message: "Disponibilidad actualizada" };
+      }),
+  }),
+
   // Estadísticas generales
   stats: router({
     get: publicProcedure.query(async () => {

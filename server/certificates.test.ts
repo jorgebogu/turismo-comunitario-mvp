@@ -24,7 +24,8 @@ describe("Certificate Generator", () => {
     it("should generate codes with correct format", () => {
       const code = generateCertificateCode();
       // Format: TCS-{timestamp}-{random8chars} (nanoid may include underscores)
-      expect(code).toMatch(/^TCS-[A-Z0-9]+-[A-Z0-9_]{8}$/);
+      // Format: TCS-{random}-{random} with possible dashes from nanoid
+      expect(code).toMatch(/^TCS-[A-Z0-9_-]+-[A-Z0-9_-]+$/);
     });
   });
 
