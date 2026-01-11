@@ -187,3 +187,18 @@
 - [x] Pruebas unitarias para el sistema de notificaciones (19 tests)
 - [x] Plantillas de email en formato HTML y texto plano
 - [x] Formato de fechas en español
+
+## Revisión de Enlaces
+
+- [x] Revisar enlaces de navegación principal
+- [x] Revisar enlaces en el footer
+- [x] Revisar enlaces en las páginas de contenido
+- [x] Corregir enlaces rotos encontrados
+- [x] Crear página de Aviso de Privacidad (/aviso-privacidad)
+- [x] Crear página de Términos de Uso (/terminos-uso)
+- [x] Actualizar enlaces en Footer.tsx para apuntar a las nuevas páginas
+
+## Páginas Legales Agregadas
+
+- [x] Aviso de Privacidad - Información sobre protección de datos personales y derechos ARCO
+- [x] Términos de Uso - Condiciones de uso de la plataforma, responsabilidades y propiedad intelectual

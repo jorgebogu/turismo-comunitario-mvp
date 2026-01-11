@@ -19,6 +19,8 @@ import VerifyCertificate from "./pages/VerifyCertificate";
 import MyReservations from "./pages/MyReservations";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAvailability from "./pages/AdminAvailability";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
 
 function Router() {
   return (
@@ -38,6 +40,8 @@ function Router() {
       <Route path="/mis-reservaciones" component={MyReservations} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/disponibilidad" component={AdminAvailability} />
+      <Route path="/aviso-privacidad" component={PrivacyPolicy} />
+      <Route path="/terminos-uso" component={TermsOfUse} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
