@@ -3,6 +3,24 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TrpcContext } from "./context";
 
+// Register custom Date transformer for Safari compatibility
+// Safari throws "The string did not match the expected pattern" for some date formats
+superjson.registerCustom<Date, string>(
+  {
+    isApplicable: (v): v is Date => v instanceof Date,
+    serialize: (v) => v.toISOString(),
+    deserialize: (v) => {
+      const date = new Date(v);
+      if (isNaN(date.getTime())) {
+        const fallback = new Date(v.replace(' ', 'T') + (v.includes('Z') ? '' : 'Z'));
+        return isNaN(fallback.getTime()) ? new Date(0) : fallback;
+      }
+      return date;
+    },
+  },
+  'Date'
+);
+
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
 });

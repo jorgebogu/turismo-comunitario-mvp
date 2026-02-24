@@ -261,3 +261,7 @@
 ### DevOps y Calidad
 - [x] ESLint: Configurado con TypeScript, React Hooks y Prettier integration (eslint.config.js)
 - [x] Scripts: lint, lint:fix, format, format:check agregados a package.json
+
+## Bugs Reportados (Feb 24)
+
+- [x] Error API Query en página principal: "The string did not match the expected pattern" - CORREGIDO: Registrado custom Date transformer en SuperJSON (servidor y cliente) para compatibilidad con Safari, agregado retry y manejo de errores defensivo

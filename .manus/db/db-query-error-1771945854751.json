@@ -1,0 +1,8 @@
+{
+  "query": "SELECT COUNT(*) as count FROM experiences WHERE is_featured = true AND is_active = true AND deleted_at IS NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT COUNT(*) as count FROM experiences WHERE is_featured = true AND is_active = true AND deleted_at IS NULL;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'is_featured' in 'where clause'"
+  ]
+}
