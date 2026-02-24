@@ -1,4 +1,4 @@
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, asc, and, sql, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users, 
@@ -106,16 +106,21 @@ export async function getUserByOpenId(openId: string) {
 // ============ EXPERIENCES FUNCTIONS ============
 export async function getExperiences(options?: { 
   limit?: number; 
+  page?: number;
   state?: string; 
   category?: string;
   featured?: boolean;
   active?: boolean;
+  sort?: string;
+  search?: string;
 }) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { data: [], total: 0, page: 1, limit: 100, totalPages: 0 };
 
-  let query = db.select().from(experiences);
   const conditions = [];
+
+  // Soft delete filter: excluir registros eliminados
+  conditions.push(sql`${experiences.deletedAt} IS NULL`);
 
   if (options?.active !== false) {
     conditions.push(eq(experiences.isActive, true));
@@ -129,13 +134,46 @@ export async function getExperiences(options?: {
   if (options?.category) {
     conditions.push(eq(experiences.category, options.category as any));
   }
-
-  if (conditions.length > 0) {
-    query = query.where(and(...conditions)) as any;
+  if (options?.search) {
+    conditions.push(like(experiences.name, `%${options.search}%`));
   }
 
-  const result = await query.orderBy(desc(experiences.createdAt)).limit(options?.limit || 100);
-  return result;
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  // Count total
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(experiences).where(whereClause);
+  const total = Number(countResult[0]?.count || 0);
+
+  // Determine sort order
+  let orderBy;
+  switch (options?.sort) {
+    case 'name_asc':
+      orderBy = asc(experiences.name);
+      break;
+    case 'name_desc':
+      orderBy = desc(experiences.name);
+      break;
+    case 'oldest':
+      orderBy = asc(experiences.createdAt);
+      break;
+    case 'newest':
+    default:
+      orderBy = desc(experiences.createdAt);
+      break;
+  }
+
+  const limit = options?.limit || 100;
+  const page = options?.page || 1;
+  const offset = (page - 1) * limit;
+  const totalPages = Math.ceil(total / limit);
+
+  let query = db.select().from(experiences);
+  if (whereClause) {
+    query = query.where(whereClause) as any;
+  }
+  const result = await query.orderBy(orderBy).limit(limit).offset(offset);
+
+  return { data: result, total, page, limit, totalPages };
 }
 
 export async function getExperienceById(id: number) {

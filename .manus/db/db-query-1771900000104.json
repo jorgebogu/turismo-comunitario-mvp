@@ -1,0 +1,210 @@
+{
+  "query": "SELECT id, imageUrl FROM experience_images WHERE imageUrl LIKE '/gallery/%' OR imageUrl LIKE '/experiences/%' LIMIT 50;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, imageUrl FROM experience_images WHERE imageUrl LIKE '/gallery/%' OR imageUrl LIKE '/experiences/%' LIMIT 50;",
+  "rows": [
+    {
+      "id": "13",
+      "imageUrl": "/gallery/OvK2ukqjnYhZ.jpg"
+    },
+    {
+      "id": "14",
+      "imageUrl": "/gallery/YOaHIpFyxAew.jpg"
+    },
+    {
+      "id": "15",
+      "imageUrl": "/gallery/6CUf4Xrz7bgu.jpg"
+    },
+    {
+      "id": "16",
+      "imageUrl": "/gallery/z8jwxUnxv0rC.jpg"
+    },
+    {
+      "id": "17",
+      "imageUrl": "/gallery/LaDXPbfeEaKQ.jpg"
+    },
+    {
+      "id": "18",
+      "imageUrl": "/gallery/oUH2GsvrcPxo.jpg"
+    },
+    {
+      "id": "19",
+      "imageUrl": "/gallery/ZxIvhrR6XmLw.jpg"
+    },
+    {
+      "id": "20",
+      "imageUrl": "/gallery/kOYdUaA013CH.jpg"
+    },
+    {
+      "id": "21",
+      "imageUrl": "/gallery/jj4t1rpnwX2l.jpg"
+    },
+    {
+      "id": "22",
+      "imageUrl": "/gallery/Uygl2Jx2W7sD.jpg"
+    },
+    {
+      "id": "23",
+      "imageUrl": "/gallery/G2Vj1rJmv759.jpg"
+    },
+    {
+      "id": "24",
+      "imageUrl": "/gallery/UIVaeff42CJd.jpg"
+    },
+    {
+      "id": "25",
+      "imageUrl": "/gallery/8U0W8lmsQ6pv.jpg"
+    },
+    {
+      "id": "26",
+      "imageUrl": "/gallery/Q7FE7AgxDhBt.jpg"
+    },
+    {
+      "id": "27",
+      "imageUrl": "/gallery/5KexyeHIsorw.jpg"
+    },
+    {
+      "id": "28",
+      "imageUrl": "/gallery/eddN1GVRonEt.jpg"
+    },
+    {
+      "id": "29",
+      "imageUrl": "/gallery/kWUlgAHhqJ7f.jpg"
+    },
+    {
+      "id": "30",
+      "imageUrl": "/gallery/dYMZwlZjrtEA.jpg"
+    },
+    {
+      "id": "31",
+      "imageUrl": "/gallery/HgxUegLhrpkk.jpg"
+    },
+    {
+      "id": "32",
+      "imageUrl": "/gallery/UnTFWzoGwGLd.jpg"
+    },
+    {
+      "id": "33",
+      "imageUrl": "/gallery/obtgq1T3GRY7.jpg"
+    },
+    {
+      "id": "34",
+      "imageUrl": "/gallery/OA79msPTzpOd.jpg"
+    },
+    {
+      "id": "35",
+      "imageUrl": "/gallery/5gDwFTe9qhjr.jpg"
+    },
+    {
+      "id": "36",
+      "imageUrl": "/gallery/yrAXipy76ybh.jpg"
+    },
+    {
+      "id": "37",
+      "imageUrl": "/gallery/9A94nauu3Uo0.jpg"
+    },
+    {
+      "id": "38",
+      "imageUrl": "/gallery/l7MrFjp30cXI.jpg"
+    },
+    {
+      "id": "39",
+      "imageUrl": "/gallery/nENoGiZxdyWH.jpg"
+    },
+    {
+      "id": "40",
+      "imageUrl": "/gallery/V1LlCdgGfUoD.webp"
+    },
+    {
+      "id": "41",
+      "imageUrl": "/gallery/M0hX29FpbDpC.jpg"
+    },
+    {
+      "id": "42",
+      "imageUrl": "/gallery/4AlqhpjB4JT8.webp"
+    },
+    {
+      "id": "43",
+      "imageUrl": "/gallery/1OLt5iHwG0qs.jpg"
+    },
+    {
+      "id": "44",
+      "imageUrl": "/gallery/pgkMrG9TJmg5.jpg"
+    },
+    {
+      "id": "45",
+      "imageUrl": "/gallery/kS6oQPAjXgK1.jpg"
+    },
+    {
+      "id": "46",
+      "imageUrl": "/gallery/kI9ALXDSh9a6.jpg"
+    },
+    {
+      "id": "47",
+      "imageUrl": "/gallery/yQNH3VCfpYLv.jpg"
+    },
+    {
+      "id": "48",
+      "imageUrl": "/gallery/ruZTHiqOlaYY.jpg"
+    },
+    {
+      "id": "49",
+      "imageUrl": "/gallery/kI9ALXDSh9a6.jpg"
+    },
+    {
+      "id": "50",
+      "imageUrl": "/gallery/yQNH3VCfpYLv.jpg"
+    },
+    {
+      "id": "51",
+      "imageUrl": "/gallery/ruZTHiqOlaYY.jpg"
+    },
+    {
+      "id": "52",
+      "imageUrl": "/gallery/llohl0efng8Y.jpg"
+    },
+    {
+      "id": "53",
+      "imageUrl": "/gallery/EGfYchZNBn6E.jpg"
+    },
+    {
+      "id": "54",
+      "imageUrl": "/gallery/Ma6oW28Sqx65.jpg"
+    },
+    {
+      "id": "55",
+      "imageUrl": "/gallery/RILIuKBXRDUu.jpg"
+    },
+    {
+      "id": "56",
+      "imageUrl": "/gallery/plxALarXW3hs.jpg"
+    },
+    {
+      "id": "57",
+      "imageUrl": "/gallery/WuQjp3WMJEar.png"
+    },
+    {
+      "id": "58",
+      "imageUrl": "/gallery/aPOlZLR2kBRr.jpg"
+    },
+    {
+      "id": "59",
+      "imageUrl": "/gallery/KwsqQeq24JbA.jpg"
+    },
+    {
+      "id": "60",
+      "imageUrl": "/gallery/hiIlZRRE9HPd.jpg"
+    },
+    {
+      "id": "61",
+      "imageUrl": "/gallery/O1I3YVusJFzX.jpg"
+    },
+    {
+      "id": "62",
+      "imageUrl": "/gallery/MfOYRRZ91ZY5.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\timageUrl\n13\t/gallery/OvK2ukqjnYhZ.jpg\n14\t/gallery/YOaHIpFyxAew.jpg\n15\t/gallery/6CUf4Xrz7bgu.jpg\n16\t/gallery/z8jwxUnxv0rC.jpg\n17\t/gallery/LaDXPbfeEaKQ.jpg\n18\t/gallery/oUH2GsvrcPxo.jpg\n19\t/gallery/ZxIvhrR6XmLw.jpg\n20\t/gallery/kOYdUaA013CH.jpg\n21\t/gallery/jj4t1rpnwX2l.jpg\n22\t/gallery/Uygl2Jx2W7sD.jpg\n23\t/gallery/G2Vj1rJmv759.jpg\n24\t/gallery/UIVaeff42CJd.jpg\n25\t/gallery/8U0W8lmsQ6pv.jpg\n26\t/gallery/Q7FE7AgxDhBt.jpg\n27\t/gallery/5KexyeHIsorw.jpg\n28\t/gallery/eddN1GVRonEt.jpg\n29\t/gallery/kWUlgAHhqJ7f.jpg\n30\t/gallery/dYMZwlZjrtEA.jpg\n31\t/gallery/HgxUegLhrpkk.jpg\n32\t/gallery/UnTFWzoGwGLd.jpg\n33\t/gallery/obtgq1T3GRY7.jpg\n34\t/gallery/OA79msPTzpOd.jpg\n35\t/gallery/5gDwFTe9qhjr.jpg\n36\t/gallery/yrAXipy76ybh.jpg\n37\t/gallery/9A94nauu3Uo0.jpg\n38\t/gallery/l7MrFjp30cXI.jpg\n39\t/gallery/nENoGiZxdyWH.jpg\n40\t/gallery/V1LlCdgGfUoD.webp\n41\t/gallery/M0hX29FpbDpC.jpg\n42\t/gallery/4AlqhpjB4JT8.webp\n43\t/gallery/1OLt5iHwG0qs.jpg\n44\t/gallery/pgkMrG9TJmg5.jpg\n45\t/gallery/kS6oQPAjXgK1.jpg\n46\t/gallery/kI9ALXDSh9a6.jpg\n47\t/gallery/yQNH3VCfpYLv.jpg\n48\t/gallery/ruZTHiqOlaYY.jpg\n49\t/gallery/kI9ALXDSh9a6.jpg\n50\t/gallery/yQNH3VCfpYLv.jpg\n51\t/gallery/ruZTHiqOlaYY.jpg\n52\t/gallery/llohl0efng8Y.jpg\n53\t/gallery/EGfYchZNBn6E.jpg\n54\t/gallery/Ma6oW28Sqx65.jpg\n55\t/gallery/RILIuKBXRDUu.jpg\n56\t/gallery/plxALarXW3hs.jpg\n57\t/gallery/WuQjp3WMJEar.png\n58\t/gallery/aPOlZLR2kBRr.jpg\n59\t/gallery/KwsqQeq24JbA.jpg\n60\t/gallery/hiIlZRRE9HPd.jpg\n61\t/gallery/O1I3YVusJFzX.jpg\n62\t/gallery/MfOYRRZ91ZY5.png\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

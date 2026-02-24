@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { trpc } from "@/lib/trpc";
 import {
   Leaf,
@@ -63,6 +64,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEOHead
+        title="Inicio"
+        description="Descubre experiencias auténticas de turismo comunitario en México. Conectamos viajeros con comunidades que protegen la biodiversidad y celebran la riqueza cultural."
+        keywords="turismo comunitario, ecoturismo México, turismo sostenible, comunidades indígenas, biodiversidad, turismo rural"
+      />
       <Navbar />
 
       {/* Hero Section */}

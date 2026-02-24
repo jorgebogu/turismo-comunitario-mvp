@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,11 @@ export default function Campus() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Campus Virtual"
+        description="Cursos y capacitaciones en línea sobre turismo comunitario, ecoturismo y gestión sostenible de destinos turísticos en México."
+        keywords="campus virtual, cursos turismo comunitario, capacitación ecoturismo, formación turismo sostenible"
+      />
       <Navbar />
 
       {/* Hero Section */}

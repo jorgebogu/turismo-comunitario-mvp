@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,9 @@ import {
 } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Mail,
   Phone,
@@ -28,6 +32,19 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
+
+// Esquema de validación con Zod
+const contactSchema = z.object({
+  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  email: z.string().email("Ingresa un correo electrónico válido"),
+  phone: z.string().optional(),
+  organization: z.string().optional(),
+  state: z.string().optional(),
+  type: z.enum(["informacion_general", "registro_comunidad", "distintivo", "capacitacion", "otro"]),
+  message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 const contactTypes = [
   { value: "informacion_general", label: "Información General", icon: HelpCircle },
@@ -46,47 +63,51 @@ const mexicanStates = [
 ];
 
 export default function Contact() {
-  const [formData, setFormData] = useState<{
-    name: string;
-    email: string;
-    phone: string;
-    organization: string;
-    state: string;
-    type: "informacion_general" | "registro_comunidad" | "distintivo" | "capacitacion" | "otro";
-    message: string;
-  }>({
-    name: "",
-    email: "",
-    phone: "",
-    organization: "",
-    state: "",
-    type: "informacion_general",
-    message: "",
-  });
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      organization: "",
+      state: "",
+      type: "informacion_general",
+      message: "",
+    },
+  });
 
   const submitMutation = trpc.contact.submit.useMutation({
     onSuccess: () => {
       setIsSubmitted(true);
       toast.success("Mensaje enviado correctamente");
+      reset();
     },
     onError: (error) => {
       toast.error(error.message || "Error al enviar el mensaje");
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitMutation.mutate(formData);
-  };
-
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const onSubmit = (data: ContactFormData) => {
+    submitMutation.mutate(data);
   };
 
   if (isSubmitted) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
+        <SEOHead
+          title="Contacto"
+          description="Contáctanos para información sobre turismo comunitario, registro de comunidades, distintivos y capacitación en México."
+          keywords="contacto turismo comunitario, registro comunidad, información ecoturismo, capacitación turismo"
+        />
         <Navbar />
         <section className="flex-1 flex items-center justify-center py-16">
           <div className="container max-w-lg text-center">
@@ -112,6 +133,11 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Contacto"
+        description="Contáctanos para información sobre turismo comunitario, registro de comunidades, distintivos y capacitación en México."
+        keywords="contacto turismo comunitario, registro comunidad, información ecoturismo, capacitación turismo"
+      />
       <Navbar />
 
       {/* Hero Section */}
@@ -203,17 +229,19 @@ export default function Contact() {
                   <CardTitle>Envíanos un mensaje</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Nombre completo *</Label>
                         <Input
                           id="name"
                           placeholder="Tu nombre"
-                          value={formData.name}
-                          onChange={(e) => handleChange("name", e.target.value)}
-                          required
+                          {...register("name")}
+                          aria-invalid={!!errors.name}
                         />
+                        {errors.name && (
+                          <p className="text-sm text-destructive">{errors.name.message}</p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Correo electrónico *</Label>
@@ -221,10 +249,12 @@ export default function Contact() {
                           id="email"
                           type="email"
                           placeholder="tu@email.com"
-                          value={formData.email}
-                          onChange={(e) => handleChange("email", e.target.value)}
-                          required
+                          {...register("email")}
+                          aria-invalid={!!errors.email}
                         />
+                        {errors.email && (
+                          <p className="text-sm text-destructive">{errors.email.message}</p>
+                        )}
                       </div>
                     </div>
 
@@ -234,8 +264,7 @@ export default function Contact() {
                         <Input
                           id="phone"
                           placeholder="+52 55 1234 5678"
-                          value={formData.phone}
-                          onChange={(e) => handleChange("phone", e.target.value)}
+                          {...register("phone")}
                         />
                       </div>
                       <div className="space-y-2">
@@ -243,8 +272,7 @@ export default function Contact() {
                         <Input
                           id="organization"
                           placeholder="Nombre de tu organización"
-                          value={formData.organization}
-                          onChange={(e) => handleChange("organization", e.target.value)}
+                          {...register("organization")}
                         />
                       </div>
                     </div>
@@ -253,8 +281,8 @@ export default function Contact() {
                       <div className="space-y-2">
                         <Label htmlFor="state">Estado</Label>
                         <Select 
-                          value={formData.state} 
-                          onValueChange={(value) => handleChange("state", value)}
+                          value={watch("state")} 
+                          onValueChange={(value) => setValue("state", value)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecciona tu estado" />
@@ -271,8 +299,8 @@ export default function Contact() {
                       <div className="space-y-2">
                         <Label htmlFor="type">Tipo de consulta *</Label>
                         <Select 
-                          value={formData.type} 
-                          onValueChange={(value) => handleChange("type", value)}
+                          value={watch("type")} 
+                          onValueChange={(value) => setValue("type", value as ContactFormData["type"])}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecciona el tipo" />
@@ -294,10 +322,12 @@ export default function Contact() {
                         id="message"
                         placeholder="Escribe tu mensaje aquí..."
                         rows={5}
-                        value={formData.message}
-                        onChange={(e) => handleChange("message", e.target.value)}
-                        required
+                        {...register("message")}
+                        aria-invalid={!!errors.message}
                       />
+                      {errors.message && (
+                        <p className="text-sm text-destructive">{errors.message.message}</p>
+                      )}
                     </div>
 
                     <Button 

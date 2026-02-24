@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -78,17 +79,22 @@ export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
 
-  const { data: experiences, isLoading } = trpc.experiences.list.useQuery({
+  const { data: experiencesResult, isLoading } = trpc.experiences.list.useQuery({
     state: selectedState !== "all" ? selectedState : undefined,
     category: selectedCategory !== "all" ? selectedCategory : undefined,
   });
 
   const filteredExperiences = useMemo(() => {
-    return experiences || [];
-  }, [experiences]);
+    return experiencesResult?.data || [];
+  }, [experiencesResult]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Galería de Experiencias"
+        description="Explora todas las experiencias de turismo comunitario disponibles en México. Filtra por estado, categoría y encuentra tu próxima aventura."
+        keywords="galería experiencias, turismo comunitario México, destinos ecoturismo, experiencias rurales"
+      />
       <Navbar />
 
       {/* Hero Section */}

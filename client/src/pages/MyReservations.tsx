@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -91,7 +92,13 @@ export default function MyReservations() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        <SEOHead
+        title="Mis Reservaciones"
+        description="Consulta y gestiona tus reservaciones de experiencias de turismo comunitario en México."
+        keywords="mis reservaciones, reservas turismo comunitario, gestión reservas"
+        noIndex
+      />
+      <Navbar />
         <main className="flex-1 container py-8">
           <div className="space-y-4">
             <Skeleton className="h-8 w-64" />

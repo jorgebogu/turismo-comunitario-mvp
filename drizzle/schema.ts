@@ -47,6 +47,7 @@ export const experiences = mysqlTable("experiences", {
   socialMedia: text("socialMedia"),
   isActive: boolean("isActive").default(true),
   isFeatured: boolean("isFeatured").default(false),
+  deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -108,6 +109,7 @@ export const resources = mysqlTable("resources", {
   author: varchar("author", { length: 200 }),
   isPublic: boolean("isPublic").default(true),
   downloadCount: int("downloadCount").default(0),
+  deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -155,6 +157,7 @@ export const courses = mysqlTable("courses", {
   imageUrl: text("imageUrl"),
   isActive: boolean("isActive").default(true),
   isFeatured: boolean("isFeatured").default(false),
+  deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -176,6 +179,7 @@ export const reviews = mysqlTable("reviews", {
   isVerified: boolean("isVerified").default(false),
   isApproved: boolean("isApproved").default(true),
   helpfulCount: int("helpfulCount").default(0),
+  deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -110,6 +111,11 @@ export default function Badges() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Distintivos y Certificaciones"
+        description="Conoce los distintivos de calidad y certificaciones para prestadores de servicios de turismo comunitario en México."
+        keywords="distintivos turismo, certificaciones ecoturismo, calidad turismo comunitario, sello sustentable"
+      />
       <Navbar />
 
       {/* Hero Section */}

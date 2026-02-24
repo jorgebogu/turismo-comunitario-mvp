@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +120,12 @@ export default function CourseDetail() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title={course?.title || "Curso"}
+        description={course?.shortDescription || course?.description?.slice(0, 160) || "Curso del Campus Virtual de Turismo Comunitario."}
+        keywords={`${course?.title}, ${course?.category}, campus virtual, cursos turismo comunitario`}
+        ogImage={course?.imageUrl || undefined}
+      />
       <Navbar />
 
       {/* Breadcrumb */}

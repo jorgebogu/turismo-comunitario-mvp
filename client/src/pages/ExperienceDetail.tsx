@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import ReservationForm from "@/components/ReservationForm";
 import Footer from "@/components/Footer";
 import ImageGallery from "@/components/ImageGallery";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,10 +63,11 @@ export default function ExperienceDetail() {
     { enabled: experienceId > 0 }
   );
 
-  const { data: relatedExperiences } = trpc.experiences.list.useQuery(
+  const { data: relatedResult } = trpc.experiences.list.useQuery(
     { state: experience?.state, limit: 4 },
     { enabled: !!experience?.state }
   );
+  const relatedExperiences = relatedResult?.data || [];
 
   // Obtener imágenes de la galería
   const { data: galleryImages } = trpc.experiences.getImages.useQuery(
@@ -132,10 +134,17 @@ export default function ExperienceDetail() {
   const CategoryIcon = categoryIcons[experience.category || "ecoturismo"] || Mountain;
   const categoryInfo = categories.find(c => c.value === experience.category);
 
-  const filteredRelated = relatedExperiences?.filter(e => e.id !== experience.id).slice(0, 3);
+  const filteredRelated = relatedExperiences.filter((e: any) => e.id !== experience.id).slice(0, 3);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title={experience?.name || "Experiencia"}
+        description={experience?.shortDescription || experience?.description?.slice(0, 160) || "Descubre esta experiencia de turismo comunitario en México."}
+        keywords={`${experience?.name}, ${experience?.state}, ${experience?.category}, turismo comunitario, ecoturismo México`}
+        ogImage={experience?.imageUrl || undefined}
+        ogType="article"
+      />
       <Navbar />
 
       {/* Breadcrumb */}

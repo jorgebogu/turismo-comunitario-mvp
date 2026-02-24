@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, image_url FROM experience_images WHERE image_url LIKE '/gallery/%' OR image_url LIKE '/experiences/%' LIMIT 50;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, image_url FROM experience_images WHERE image_url LIKE '/gallery/%' OR image_url LIKE '/experiences/%' LIMIT 50;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'image_url' in 'where clause'"
+  ]
+}

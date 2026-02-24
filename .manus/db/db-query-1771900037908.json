@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, imageUrl FROM experience_images WHERE imageUrl NOT LIKE 'https://%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT id, imageUrl FROM experience_images WHERE imageUrl NOT LIKE 'https://%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "13",
+      "imageUrl": "/gallery/OvK2ukqjnYhZ.jpg"
+    },
+    {
+      "id": "14",
+      "imageUrl": "/gallery/YOaHIpFyxAew.jpg"
+    },
+    {
+      "id": "15",
+      "imageUrl": "/gallery/6CUf4Xrz7bgu.jpg"
+    },
+    {
+      "id": "16",
+      "imageUrl": "/gallery/z8jwxUnxv0rC.jpg"
+    },
+    {
+      "id": "17",
+      "imageUrl": "/gallery/LaDXPbfeEaKQ.jpg"
+    },
+    {
+      "id": "18",
+      "imageUrl": "/gallery/oUH2GsvrcPxo.jpg"
+    },
+    {
+      "id": "19",
+      "imageUrl": "/gallery/ZxIvhrR6XmLw.jpg"
+    },
+    {
+      "id": "20",
+      "imageUrl": "/gallery/kOYdUaA013CH.jpg"
+    },
+    {
+      "id": "21",
+      "imageUrl": "/gallery/jj4t1rpnwX2l.jpg"
+    },
+    {
+      "id": "22",
+      "imageUrl": "/gallery/Uygl2Jx2W7sD.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\timageUrl\n13\t/gallery/OvK2ukqjnYhZ.jpg\n14\t/gallery/YOaHIpFyxAew.jpg\n15\t/gallery/6CUf4Xrz7bgu.jpg\n16\t/gallery/z8jwxUnxv0rC.jpg\n17\t/gallery/LaDXPbfeEaKQ.jpg\n18\t/gallery/oUH2GsvrcPxo.jpg\n19\t/gallery/ZxIvhrR6XmLw.jpg\n20\t/gallery/kOYdUaA013CH.jpg\n21\t/gallery/jj4t1rpnwX2l.jpg\n22\t/gallery/Uygl2Jx2W7sD.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

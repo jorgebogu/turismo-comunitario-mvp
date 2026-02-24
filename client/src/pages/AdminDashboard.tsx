@@ -30,6 +30,7 @@ import { Link } from "wouter";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import { SEOHead } from "@/components/SEOHead";
 import Footer from "@/components/Footer";
 
 export default function AdminDashboard() {
@@ -169,6 +170,11 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
+      <SEOHead
+        title="Panel de Administración"
+        description="Gestiona reservaciones, disponibilidad y experiencias de turismo comunitario."
+        noIndex
+      />
       <Navbar />
       
       <main className="flex-1 container py-8">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,11 @@ export default function ContentCenter() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Centro de Contenido"
+        description="Accede a guías, manuales, infografías y recursos educativos sobre turismo comunitario sostenible en México."
+        keywords="recursos educativos, guías turismo comunitario, manuales ecoturismo, capacitación turismo sostenible"
+      />
       <Navbar />
 
       {/* Hero Section */}

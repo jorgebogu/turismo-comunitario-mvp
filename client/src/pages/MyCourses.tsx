@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -115,7 +116,13 @@ export default function MyCourses() {
   if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <Navbar />
+        <SEOHead
+        title="Mis Cursos"
+        description="Gestiona tus inscripciones y progreso en los cursos del Campus Virtual de Turismo Comunitario."
+        keywords="mis cursos, progreso cursos, campus virtual, certificados turismo"
+        noIndex
+      />
+      <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
           <div className="text-center">
             <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4" />

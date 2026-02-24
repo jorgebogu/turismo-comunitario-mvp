@@ -1,0 +1,187 @@
+{
+  "query": "SELECT DISTINCT imageUrl FROM experience_images WHERE imageUrl LIKE '/gallery/%' OR imageUrl LIKE '/experiences/%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tJBWVZwD9EzNmp.root --database 4WReqbvZuEqwMQa3ftrdTN --execute SELECT DISTINCT imageUrl FROM experience_images WHERE imageUrl LIKE '/gallery/%' OR imageUrl LIKE '/experiences/%';",
+  "rows": [
+    {
+      "imageUrl": "/gallery/pgkMrG9TJmg5.jpg"
+    },
+    {
+      "imageUrl": "/gallery/5KexyeHIsorw.jpg"
+    },
+    {
+      "imageUrl": "/gallery/kI9ALXDSh9a6.jpg"
+    },
+    {
+      "imageUrl": "/gallery/sIFZnENA8nXH.png"
+    },
+    {
+      "imageUrl": "/gallery/UnTFWzoGwGLd.jpg"
+    },
+    {
+      "imageUrl": "/gallery/ciCPFR69skyy.jpg"
+    },
+    {
+      "imageUrl": "/gallery/kOYdUaA013CH.jpg"
+    },
+    {
+      "imageUrl": "/gallery/Ma6oW28Sqx65.jpg"
+    },
+    {
+      "imageUrl": "/gallery/aPOlZLR2kBRr.jpg"
+    },
+    {
+      "imageUrl": "/gallery/Q7FE7AgxDhBt.jpg"
+    },
+    {
+      "imageUrl": "/gallery/h0vlrFCRb6dp.jpg"
+    },
+    {
+      "imageUrl": "/gallery/2PtvrW0huv2R.jpg"
+    },
+    {
+      "imageUrl": "/gallery/hiIlZRRE9HPd.jpg"
+    },
+    {
+      "imageUrl": "/gallery/G4JToEbqXCXc.jpg"
+    },
+    {
+      "imageUrl": "/gallery/z8jwxUnxv0rC.jpg"
+    },
+    {
+      "imageUrl": "/gallery/OA79msPTzpOd.jpg"
+    },
+    {
+      "imageUrl": "/gallery/1OLt5iHwG0qs.jpg"
+    },
+    {
+      "imageUrl": "/gallery/obtgq1T3GRY7.jpg"
+    },
+    {
+      "imageUrl": "/gallery/plxALarXW3hs.jpg"
+    },
+    {
+      "imageUrl": "/gallery/5gDwFTe9qhjr.jpg"
+    },
+    {
+      "imageUrl": "/gallery/MfOYRRZ91ZY5.png"
+    },
+    {
+      "imageUrl": "/gallery/6CUf4Xrz7bgu.jpg"
+    },
+    {
+      "imageUrl": "/gallery/Uj1jk0FSsLPe.jpg"
+    },
+    {
+      "imageUrl": "/gallery/eddN1GVRonEt.jpg"
+    },
+    {
+      "imageUrl": "/gallery/yrAXipy76ybh.jpg"
+    },
+    {
+      "imageUrl": "/gallery/KwsqQeq24JbA.jpg"
+    },
+    {
+      "imageUrl": "/gallery/V0pcG6C4gA2x.jpg"
+    },
+    {
+      "imageUrl": "/gallery/dYMZwlZjrtEA.jpg"
+    },
+    {
+      "imageUrl": "/gallery/G2Vj1rJmv759.jpg"
+    },
+    {
+      "imageUrl": "/gallery/8U0W8lmsQ6pv.jpg"
+    },
+    {
+      "imageUrl": "/gallery/4AlqhpjB4JT8.webp"
+    },
+    {
+      "imageUrl": "/gallery/oUH2GsvrcPxo.jpg"
+    },
+    {
+      "imageUrl": "/gallery/llohl0efng8Y.jpg"
+    },
+    {
+      "imageUrl": "/gallery/UIVaeff42CJd.jpg"
+    },
+    {
+      "imageUrl": "/gallery/M0hX29FpbDpC.jpg"
+    },
+    {
+      "imageUrl": "/gallery/nENoGiZxdyWH.jpg"
+    },
+    {
+      "imageUrl": "/gallery/l7MrFjp30cXI.jpg"
+    },
+    {
+      "imageUrl": "/gallery/HgxUegLhrpkk.jpg"
+    },
+    {
+      "imageUrl": "/gallery/zYp0eJGpk6oF.jpg"
+    },
+    {
+      "imageUrl": "/gallery/Uygl2Jx2W7sD.jpg"
+    },
+    {
+      "imageUrl": "/gallery/71VDr9ZJRomU.jpg"
+    },
+    {
+      "imageUrl": "/gallery/47SDjDyB5W6J.jpg"
+    },
+    {
+      "imageUrl": "/gallery/kWUlgAHhqJ7f.jpg"
+    },
+    {
+      "imageUrl": "/gallery/V1LlCdgGfUoD.webp"
+    },
+    {
+      "imageUrl": "/gallery/O1I3YVusJFzX.jpg"
+    },
+    {
+      "imageUrl": "/gallery/ruZTHiqOlaYY.jpg"
+    },
+    {
+      "imageUrl": "/gallery/jj4t1rpnwX2l.jpg"
+    },
+    {
+      "imageUrl": "/gallery/ZxIvhrR6XmLw.jpg"
+    },
+    {
+      "imageUrl": "/gallery/YOaHIpFyxAew.jpg"
+    },
+    {
+      "imageUrl": "/gallery/LaDXPbfeEaKQ.jpg"
+    },
+    {
+      "imageUrl": "/gallery/OvK2ukqjnYhZ.jpg"
+    },
+    {
+      "imageUrl": "/gallery/WuQjp3WMJEar.png"
+    },
+    {
+      "imageUrl": "/gallery/yQNH3VCfpYLv.jpg"
+    },
+    {
+      "imageUrl": "/gallery/HlRQCNN7nuiQ.jpg"
+    },
+    {
+      "imageUrl": "/gallery/ACcR9LFiXomi.jpg"
+    },
+    {
+      "imageUrl": "/gallery/9A94nauu3Uo0.jpg"
+    },
+    {
+      "imageUrl": "/gallery/EGfYchZNBn6E.jpg"
+    },
+    {
+      "imageUrl": "/gallery/RILIuKBXRDUu.jpg"
+    },
+    {
+      "imageUrl": "/gallery/kS6oQPAjXgK1.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "imageUrl\n/gallery/pgkMrG9TJmg5.jpg\n/gallery/5KexyeHIsorw.jpg\n/gallery/kI9ALXDSh9a6.jpg\n/gallery/sIFZnENA8nXH.png\n/gallery/UnTFWzoGwGLd.jpg\n/gallery/ciCPFR69skyy.jpg\n/gallery/kOYdUaA013CH.jpg\n/gallery/Ma6oW28Sqx65.jpg\n/gallery/aPOlZLR2kBRr.jpg\n/gallery/Q7FE7AgxDhBt.jpg\n/gallery/h0vlrFCRb6dp.jpg\n/gallery/2PtvrW0huv2R.jpg\n/gallery/hiIlZRRE9HPd.jpg\n/gallery/G4JToEbqXCXc.jpg\n/gallery/z8jwxUnxv0rC.jpg\n/gallery/OA79msPTzpOd.jpg\n/gallery/1OLt5iHwG0qs.jpg\n/gallery/obtgq1T3GRY7.jpg\n/gallery/plxALarXW3hs.jpg\n/gallery/5gDwFTe9qhjr.jpg\n/gallery/MfOYRRZ91ZY5.png\n/gallery/6CUf4Xrz7bgu.jpg\n/gallery/Uj1jk0FSsLPe.jpg\n/gallery/eddN1GVRonEt.jpg\n/gallery/yrAXipy76ybh.jpg\n/gallery/KwsqQeq24JbA.jpg\n/gallery/V0pcG6C4gA2x.jpg\n/gallery/dYMZwlZjrtEA.jpg\n/gallery/G2Vj1rJmv759.jpg\n/gallery/8U0W8lmsQ6pv.jpg\n/gallery/4AlqhpjB4JT8.webp\n/gallery/oUH2GsvrcPxo.jpg\n/gallery/llohl0efng8Y.jpg\n/gallery/UIVaeff42CJd.jpg\n/gallery/M0hX29FpbDpC.jpg\n/gallery/nENoGiZxdyWH.jpg\n/gallery/l7MrFjp30cXI.jpg\n/gallery/HgxUegLhrpkk.jpg\n/gallery/zYp0eJGpk6oF.jpg\n/gallery/Uygl2Jx2W7sD.jpg\n/gallery/71VDr9ZJRomU.jpg\n/gallery/47SDjDyB5W6J.jpg\n/gallery/kWUlgAHhqJ7f.jpg\n/gallery/V1LlCdgGfUoD.webp\n/gallery/O1I3YVusJFzX.jpg\n/gallery/ruZTHiqOlaYY.jpg\n/gallery/jj4t1rpnwX2l.jpg\n/gallery/ZxIvhrR6XmLw.jpg\n/gallery/YOaHIpFyxAew.jpg\n/gallery/LaDXPbfeEaKQ.jpg\n/gallery/OvK2ukqjnYhZ.jpg\n/gallery/WuQjp3WMJEar.png\n/gallery/yQNH3VCfpYLv.jpg\n/gallery/HlRQCNN7nuiQ.jpg\n/gallery/ACcR9LFiXomi.jpg\n/gallery/9A94nauu3Uo0.jpg\n/gallery/EGfYchZNBn6E.jpg\n/gallery/RILIuKBXRDUu.jpg\n/gallery/kS6oQPAjXgK1.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -195,10 +196,11 @@ export default function Geoportal() {
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
-  const { data: experiences, isLoading } = trpc.experiences.list.useQuery({
+  const { data: experiencesResult, isLoading } = trpc.experiences.list.useQuery({
     state: selectedState !== "all" ? selectedState : undefined,
     category: selectedCategory !== "all" ? selectedCategory : undefined,
   });
+  const experiences = experiencesResult?.data || [];
 
   // Función para obtener la ubicación del usuario
   const getUserLocation = useCallback(() => {
@@ -849,6 +851,11 @@ export default function Geoportal() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Geoportal Interactivo"
+        description="Explora experiencias de turismo comunitario en un mapa interactivo de México. Encuentra destinos de ecoturismo, turismo rural y aventura."
+        keywords="geoportal, mapa turismo comunitario, destinos ecoturismo México, mapa interactivo"
+      />
       <Navbar />
 
       {/* Hero Section */}

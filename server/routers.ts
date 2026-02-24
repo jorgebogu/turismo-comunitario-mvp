@@ -23,9 +23,12 @@ export const appRouter = router({
     list: publicProcedure
       .input(z.object({
         limit: z.number().optional(),
+        page: z.number().optional(),
         state: z.string().optional(),
         category: z.string().optional(),
         featured: z.boolean().optional(),
+        sort: z.string().optional(),
+        search: z.string().optional(),
       }).optional())
       .query(async ({ input }) => {
         return await db.getExperiences(input);
@@ -44,7 +47,8 @@ export const appRouter = router({
     getFeatured: publicProcedure
       .input(z.object({ limit: z.number().optional() }).optional())
       .query(async ({ input }) => {
-        return await db.getExperiences({ featured: true, limit: input?.limit || 6 });
+        const result = await db.getExperiences({ featured: true, limit: input?.limit || 6 });
+        return result.data;
       }),
 
     create: protectedProcedure

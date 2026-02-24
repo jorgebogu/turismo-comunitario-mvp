@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -69,6 +70,11 @@ const biodiversityFacts = [
 export default function About() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEOHead
+        title="Acerca del Proyecto"
+        description="Conoce la misión, visión y objetivos de la plataforma de Turismo Comunitario Sostenible en México."
+        keywords="acerca de, misión turismo comunitario, proyecto ecoturismo México, turismo sostenible"
+      />
       <Navbar />
 
       {/* Hero Section */}

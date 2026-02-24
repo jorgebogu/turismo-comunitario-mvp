@@ -244,3 +244,20 @@
 ## Documentación
 
 - [x] Crear archivo README.md para el repositorio
+
+## Mejoras de Calidad del Proyecto
+
+### Frontend
+- [x] Lazy Loading: React.lazy() y Suspense para carga diferida de todas las páginas
+- [x] Skeleton Loaders: Componente SkeletonLoaders.tsx con animaciones para estados de carga
+- [x] SEO Dinámico: react-helmet-async con SEOHead.tsx en 13 páginas (títulos, descripciones, keywords, Open Graph)
+- [x] Rutas Protegidas: ProtectedRoute.tsx para rutas de admin y usuario autenticado
+- [x] Validación de Formularios: React Hook Form + Zod en formulario de contacto
+
+### Backend
+- [x] Paginación y Filtrado: page, limit, sort, search y totalPages en endpoint de experiencias
+- [x] Soft Deletes: campo deletedAt en tablas experiences, resources, courses, reviews
+
+### DevOps y Calidad
+- [x] ESLint: Configurado con TypeScript, React Hooks y Prettier integration (eslint.config.js)
+- [x] Scripts: lint, lint:fix, format, format:check agregados a package.json

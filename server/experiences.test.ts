@@ -89,7 +89,13 @@ describe("experiences router", () => {
       { id: 2, name: "Featured 2", isFeatured: true },
     ];
 
-    vi.mocked(db.getExperiences).mockResolvedValue(mockFeatured as any);
+    vi.mocked(db.getExperiences).mockResolvedValue({
+      data: mockFeatured,
+      total: 2,
+      page: 1,
+      limit: 2,
+      totalPages: 1,
+    } as any);
 
     const ctx = createPublicContext();
     const caller = appRouter.createCaller(ctx);
